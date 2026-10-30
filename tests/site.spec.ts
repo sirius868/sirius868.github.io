@@ -8,7 +8,7 @@ test('home, article flow and draft exclusion', async ({ page }) => {
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(page.locator('.orbit-one')).toHaveCSS('animation-name', 'orbit-clockwise');
   await page.screenshot({ path: 'test-results/home-desktop.png', fullPage: true });
-  await expect(page.getByRole('heading', { name: /我是 yh/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /来聊聊技术/ })).toBeVisible();
   await expect(page.getByText('隐秘茉莉专用测试词')).toHaveCount(0);
   await page.getByRole('link', { name: '阅读文章' }).click();
   await expect(page).toHaveURL(/\/blog\/$/);
@@ -31,16 +31,17 @@ test('home, article flow and draft exclusion', async ({ page }) => {
 test('tag, about, search and theme work on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('/blog/');
-  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', 320);
+  expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: 'test-results/blog-mobile.png', fullPage: true });
+  await page.getByRole('button', { name: '展开标签' }).click();
   await page.getByRole('link', { name: '写作' }).first().click();
   await expect(page.getByRole('heading', { name: '写作.' })).toBeVisible();
   await expect(page.getByRole('link', { name: '尚未发布的手稿' })).toHaveCount(0);
   await page.goto('/blog/quiet-tools/');
   await expect(page.locator('pre')).toBeVisible();
-  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', 320);
+  expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
   await page.goto('/about/');
-  await expect(page.getByRole('heading', { name: '你好，我是 yh。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '这里写些什么' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '经历' })).toHaveCount(0);
   await page.getByRole('button', { name: '选择主题' }).click();
   await page.getByRole('menuitemradio', { name: '深色' }).click();
@@ -201,5 +202,30 @@ test('notes list and detail exclude drafts', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '这页走丢了.' })).toBeVisible();
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('/notes/');
-  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', 320);
+  expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('tag filters collapse to one row and expand on demand', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/blog/');
+  const filter = page.locator('[data-tag-filter]');
+  const toggle = page.getByRole('button', { name: '展开标签' });
+  await expect(toggle).toBeVisible();
+  await expect(filter).toHaveClass(/is-collapsed/);
+  const visibleRowHeight = await filter.locator('.pill-row').evaluate((element) => element.getBoundingClientRect().height);
+  const hiddenTags = filter.locator('a[aria-hidden="true"]');
+  expect(await hiddenTags.count()).toBeGreaterThan(0);
+  await toggle.click();
+  await expect(filter).not.toHaveClass(/is-collapsed/);
+  await expect(page.getByRole('button', { name: '收起标签' })).toHaveAttribute('aria-expanded', 'true');
+  expect(await filter.locator('.pill-row').evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThan(visibleRowHeight);
+  await expect(hiddenTags).toHaveCount(0);
+  await page.getByRole('button', { name: '收起标签' }).click();
+  await expect(filter).toHaveClass(/is-collapsed/);
+
+  await page.goto('/blog/page/2/');
+  await expect(page.getByRole('button', { name: '展开标签' })).toBeVisible();
+  await expect(page.locator('.site-footer').getByRole('link', { name: 'RSS' })).toHaveCount(0);
+  await page.setViewportSize({ width: 1100, height: 800 });
+  await expect(page.locator('.tag-filter-toggle')).toBeHidden();
 });

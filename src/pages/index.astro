@@ -12,8 +12,8 @@ const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug
 <BaseLayout title={site.name} description={site.description} section="home">
   <section class="hero">
     <div class="hero-copy">
-      <div class="eyebrow">A PERSONAL SPACE FOR WORDS</div>
-      <h1>你好，<br />我是 <em>{site.author}</em><span class="hero-period">.</span></h1>
+      <div class="eyebrow">NOTES ON BUILDING THINGS</div>
+      <h1>你好，<br />来聊聊<em>技术</em><span class="hero-period">.</span></h1>
       <p>{site.intro}</p>
       <div class="hero-actions"><a class="button glow-button" data-glow-button href="/blog/"><span>阅读文章</span><span aria-hidden="true">↗</span></a><a class="button button-outline" href="/about/">了解我</a></div>
     </div>
@@ -23,7 +23,7 @@ const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug
     {featured.length > 0 && <section aria-labelledby="featured-heading"><div class="section-head"><div><div class="eyebrow">EDITOR'S PICK</div><h2 id="featured-heading">精选文章</h2></div><a href="/blog/">全部文章 ↗</a></div><div class="article-grid">{featured.map((article) => <ArticleCard article={article} />)}</div></section>}
     {recent.length > 0 && <section aria-labelledby="recent-heading"><div class="section-head"><div><div class="eyebrow">LATEST STORIES</div><h2 id="recent-heading">最近写下</h2></div><a href="/blog/">浏览更多 ↗</a></div><div class="article-grid">{recent.map((article) => <ArticleCard article={article} />)}</div></section>}
   </>}
-  <section class="closing"><div class="eyebrow">KEEP IN TOUCH WITH WORDS</div><h2>有些想法，<br />值得慢慢展开。</h2><p>如果你也喜欢从阅读和日常中寻找问题，欢迎继续逛逛。</p><a href="/about/" class="text-link">更多关于我 ↗</a></section>
+  <section class="closing"><div class="eyebrow">KEEP EXPLORING</div><h2>有些问题，<br />值得认真拆解。</h2><p>把实践中的思路和踩过的坑写下来，希望能帮你更快找到方向。</p><a href="/about/" class="text-link">更多关于这个博客 ↗</a></section>
 </BaseLayout>
 
 <style>

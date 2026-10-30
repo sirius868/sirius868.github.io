@@ -1,0 +1,74 @@
+---
+interface Props {
+  tags: string[];
+  currentPage?: boolean;
+}
+
+const { tags, currentPage = false } = Astro.props;
+---
+{tags.length > 0 && <div class="tag-filter" data-tag-filter>
+  <nav class="pill-row" id="article-tag-filter" aria-label="按标签筛选">
+    <a href="/blog/" aria-current={currentPage ? 'page' : undefined}>全部</a>
+    {tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}
+  </nav>
+  <button class="tag-filter-toggle" type="button" aria-controls="article-tag-filter" aria-expanded="false" hidden>
+    <span>展开标签</span><span class="tag-filter-chevron" aria-hidden="true">⌄</span>
+  </button>
+</div>}
+
+<script>
+  const filter = document.querySelector<HTMLElement>('[data-tag-filter]');
+  const tags = filter?.querySelector<HTMLElement>('.pill-row');
+  const toggle = filter?.querySelector<HTMLButtonElement>('.tag-filter-toggle');
+  const label = toggle?.querySelector<HTMLElement>('span');
+  let expanded = false;
+
+  const update = () => {
+    if (!filter || !tags || !toggle) return;
+    const firstTag = tags.querySelector<HTMLElement>('a');
+    if (!firstTag) return;
+
+    // Reserve the toggle's width while measuring so the first row remains stable.
+    toggle.hidden = false;
+    tags.style.setProperty('--tag-row-height', `${firstTag.offsetHeight}px`);
+    const overflows = tags.scrollHeight > firstTag.offsetHeight + 1;
+    toggle.hidden = !overflows;
+    if (!overflows) expanded = false;
+    const collapsed = overflows && !expanded;
+    filter.classList.toggle('is-collapsed', collapsed);
+    toggle.setAttribute('aria-expanded', String(overflows && expanded));
+    if (label) label.textContent = expanded ? '收起标签' : '展开标签';
+    for (const link of tags.querySelectorAll<HTMLAnchorElement>('a')) {
+      const hidden = collapsed && link.offsetTop > firstTag.offsetTop;
+      if (hidden) {
+        link.tabIndex = -1;
+        link.setAttribute('aria-hidden', 'true');
+      } else {
+        link.removeAttribute('tabindex');
+        link.removeAttribute('aria-hidden');
+      }
+    }
+  };
+
+  toggle?.addEventListener('click', () => {
+    expanded = !expanded;
+    update();
+  });
+  window.addEventListener('resize', update);
+  document.fonts.ready.then(update);
+  update();
+</script>
+
+<style>
+  .tag-filter{display:flex;align-items:flex-start;gap:10px;margin:24px 0}
+  .tag-filter .pill-row{flex:1;min-width:0;margin:0}
+  .tag-filter.is-collapsed .pill-row{max-height:var(--tag-row-height);overflow:hidden}
+  .tag-filter-toggle{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:.85rem;font-weight:600;white-space:nowrap;transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .2s ease}
+  .tag-filter-toggle[hidden]{display:none}
+  .tag-filter-toggle:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+  .tag-filter-toggle:active{transform:translateY(0) scale(.97)}
+  .tag-filter-chevron{display:inline-block;font-size:1.1em;line-height:1;transition:transform .2s ease}
+  .tag-filter-toggle[aria-expanded=true] .tag-filter-chevron{transform:rotate(180deg)}
+  @media(max-width:360px){.tag-filter{gap:6px}.tag-filter-toggle{padding-inline:9px;font-size:.78rem}}
+  @media(prefers-reduced-motion:reduce){.tag-filter-toggle,.tag-filter-chevron{transition:none}.tag-filter-toggle:hover,.tag-filter-toggle:active{transform:none}}
+</style>

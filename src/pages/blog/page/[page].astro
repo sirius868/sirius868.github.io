@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ArticleCard from '../../../components/ArticleCard.astro';
 import Pagination from '../../../components/Pagination.astro';
+import TagFilter from '../../../components/TagFilter.astro';
 import { getPublishedArticles, pageCount, pageSlice } from '../../../lib/articles';
 
 export async function getStaticPaths() {
@@ -15,8 +16,8 @@ const count = pageCount(articles.length);
 const tags = [...new Set(articles.flatMap((article) => article.data.tags))].sort((a, b) => a.localeCompare(b, 'zh-CN'));
 ---
 <BaseLayout title={`文章 · 第 ${page} 页`} description={`yhblog 的文章列表，第 ${page} 页。`} section="blog">
-  <section class="page-head"><div class="eyebrow">ALL STORIES</div><h1>文章<span style="color:var(--accent)">.</span></h1><p>一些持续记录的想法。愿你在这里找到可以继续追问的问题。</p></section>
-  {tags.length > 0 && <nav class="pill-row" aria-label="按标签筛选"><a href="/blog/">全部</a>{tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}</nav>}
+  <section class="page-head"><div class="eyebrow">ALL STORIES</div><h1>文章<span style="color:var(--accent)">.</span></h1><p>关于 AI Agent、开发工具和工程实践的一些记录。</p></section>
+  <TagFilter tags={tags} />
   <div class="article-grid paginated-grid">{pageSlice(articles, page).map((article) => <ArticleCard article={article} />)}</div>
   <Pagination page={page} count={count} />
 </BaseLayout>
