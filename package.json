@@ -1,0 +1,25 @@
+{
+  "name": "personal-blog",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro dev --host 127.0.0.1",
+    "build": "node scripts/validate-content.mjs && cross-env ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1",
+    "check": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.0",
+    "@astrojs/rss": "^4.0.0",
+    "@astrojs/sitemap": "^3.4.0",
+    "astro": "^5.15.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "@playwright/test": "^1.64.1",
+    "cross-env": "^10.0.0",
+    "typescript": "^5.9.0",
+    "yaml": "^2.9.1"
+  }
+}

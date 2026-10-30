@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" role="img" aria-labelledby="title">
+  <title id="title">从问题到文章的四步流程</title>
+  <rect width="800" height="360" rx="28" fill="#ededeb"/>
+  <path d="M80 180h640" fill="none" stroke="#aaa" stroke-width="3" stroke-dasharray="8 10"/>
+  <g font-family="sans-serif" text-anchor="middle" font-size="24" font-weight="700" fill="#252525">
+    <circle cx="130" cy="180" r="50" fill="#fff" stroke="#aaa" stroke-width="3"/><text x="130" y="190">记录</text>
+    <circle cx="310" cy="180" r="50" fill="#fff" stroke="#aaa" stroke-width="3"/><text x="310" y="190">追问</text>
+    <circle cx="490" cy="180" r="50" fill="#fff" stroke="#aaa" stroke-width="3"/><text x="490" y="190">回看</text>
+    <circle cx="670" cy="180" r="50" fill="#fff" stroke="#aaa" stroke-width="3"/><text x="670" y="190">重写</text>
+  </g>
+</svg>

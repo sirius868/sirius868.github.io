@@ -1,0 +1,31 @@
+---
+interface Props { page: number; count: number; basePath?: string; label?: string; }
+const { page, count, basePath = '/blog/', label = '文章分页' } = Astro.props;
+const previous = page > 1 ? (page === 2 ? basePath : `${basePath}page/${page - 1}/`) : null;
+const next = page < count ? `${basePath}page/${page + 1}/` : null;
+---
+{count > 1 && <nav class="pagination" aria-label={label}>
+  {previous ? <a class="page-link" href={previous}>← 上一页</a> : <span class="pagination-placeholder" aria-hidden="true">← 上一页</span>}
+  <form class="page-count page-jump" aria-label={`跳转${label}`} data-page-jump data-base-path={basePath}>
+    <label class="sr-only" for="page-jump-input">目标页码</label>
+    <input id="page-jump-input" name="page" type="number" min="1" max={count} value={page} required inputmode="numeric" aria-label="目标页码" />
+    <span aria-hidden="true">/ {count}</span>
+    <button type="submit" aria-label="跳转到指定页" title="跳转到指定页">↗</button>
+  </form>
+  {next ? <a class="page-link" href={next}>下一页 →</a> : <span class="pagination-placeholder" aria-hidden="true">下一页 →</span>}
+</nav>}
+<script>
+  const jumpForm = document.querySelector<HTMLFormElement>('[data-page-jump]');
+  jumpForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const input = jumpForm.querySelector<HTMLInputElement>('input[name="page"]');
+    const target = Number(input?.value);
+    const count = Number(input?.max);
+    if (!Number.isInteger(target) || target < 1 || target > count) {
+      input?.reportValidity();
+      return;
+    }
+    const basePath = jumpForm.dataset.basePath || '/blog/';
+    window.location.assign(target === 1 ? basePath : `${basePath}page/${target}/`);
+  });
+</script>

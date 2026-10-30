@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getPublishedArticles } from '../lib/articles';
+import { site } from '../site.config';
+
+const articles = await getPublishedArticles();
+const featured = articles.filter((article) => article.data.featured).slice(0, 2);
+const featuredSlugs = new Set(featured.map((article) => article.data.slug));
+const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug)).slice(0, 4);
+---
+<BaseLayout title={site.name} description={site.description} section="home">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">A PERSONAL SPACE FOR WORDS</div>
+      <h1>你好，<br />我是 <em>{site.author}</em><span class="hero-period">.</span></h1>
+      <p>{site.intro}</p>
+      <div class="hero-actions"><a class="button glow-button" data-glow-button href="/blog/"><span>阅读文章</span><span aria-hidden="true">↗</span></a><a class="button button-outline" href="/about/">了解我</a></div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span><span class="art-disc"></span><span class="art-star star-one">✳</span><span class="art-star star-two">✳</span><span class="art-caption">IDEAS GROW HERE</span></div>
+  </section>
+  {articles.length === 0 ? <div class="empty-state">文章正在路上，欢迎稍后再来。</div> : <>
+    {featured.length > 0 && <section aria-labelledby="featured-heading"><div class="section-head"><div><div class="eyebrow">EDITOR'S PICK</div><h2 id="featured-heading">精选文章</h2></div><a href="/blog/">全部文章 ↗</a></div><div class="article-grid">{featured.map((article) => <ArticleCard article={article} />)}</div></section>}
+    {recent.length > 0 && <section aria-labelledby="recent-heading"><div class="section-head"><div><div class="eyebrow">LATEST STORIES</div><h2 id="recent-heading">最近写下</h2></div><a href="/blog/">浏览更多 ↗</a></div><div class="article-grid">{recent.map((article) => <ArticleCard article={article} />)}</div></section>}
+  </>}
+  <section class="closing"><div class="eyebrow">KEEP IN TOUCH WITH WORDS</div><h2>有些想法，<br />值得慢慢展开。</h2><p>如果你也喜欢从阅读和日常中寻找问题，欢迎继续逛逛。</p><a href="/about/" class="text-link">更多关于我 ↗</a></section>
+</BaseLayout>
+
+<style>
+  .hero{min-height:520px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:50px 0 36px}.hero-copy h1{font-size:clamp(3.6rem,8vw,6.6rem);line-height:1.07;letter-spacing:-.085em;margin:23px 0}.hero-copy h1 em{font-style:normal;color:var(--accent)}.hero-period{color:#888}.hero-copy p{max-width:485px;color:var(--muted);font-size:1.06rem;line-height:1.95}.hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:30px}.hero-art{height:390px;position:relative;display:grid;place-items:center;border-radius:32px;background:radial-gradient(circle at 70% 25%,var(--accent-soft),transparent 45%),linear-gradient(145deg,var(--soft),var(--surface));overflow:hidden;border:1px solid var(--line)}.art-disc{width:190px;height:190px;border-radius:50%;background:linear-gradient(140deg,#bcbcbc,#3d3d3d);box-shadow:24px 28px 0 rgba(0,0,0,.1),inset -20px -20px 40px rgba(0,0,0,.15);transform:rotate(-25deg)}.art-orbit{position:absolute;border:1px solid var(--accent);border-radius:50%;opacity:.25;transform:rotate(-30deg)}.orbit-one{width:280px;height:370px}.orbit-two{width:380px;height:250px}.art-star{position:absolute;color:#999;font-size:2rem}.star-one{top:60px;left:70px}.star-two{bottom:60px;right:65px;font-size:1.2rem}.art-caption{position:absolute;left:25px;bottom:21px;color:var(--muted);font-size:.67rem;letter-spacing:.2em;font-weight:700}.closing{margin-top:90px;padding:55px 45px;border-radius:24px;background:var(--accent-soft)}.closing h2{font-size:clamp(2rem,4vw,3.2rem);line-height:1.3;letter-spacing:-.05em;margin:13px 0}.closing p{color:var(--muted);margin-bottom:16px}@media(max-width:700px){.hero{grid-template-columns:1fr;gap:20px;padding:50px 0 20px;min-height:0}.hero-art{height:260px}.art-disc{width:140px;height:140px}.hero-copy h1{font-size:3.7rem}.closing{padding:35px 25px;margin-top:65px}}@media(max-width:360px){.hero-copy h1{font-size:3.2rem}}
+</style>
+<style>
+  .orbit-one{animation:orbit-clockwise 32s linear infinite;transform-origin:center}
+  .orbit-two{animation:orbit-counterclockwise 42s linear infinite;transform-origin:center}
+  .art-disc{animation:disc-float 6s ease-in-out infinite}
+  .star-one{animation:star-breathe 4s ease-in-out infinite}
+  .star-two{animation:star-breathe 4s ease-in-out -2s infinite}
+  @keyframes orbit-clockwise{from{transform:rotate(-30deg)}to{transform:rotate(330deg)}}
+  @keyframes orbit-counterclockwise{from{transform:rotate(-30deg)}to{transform:rotate(-390deg)}}
+  @keyframes disc-float{0%,100%{transform:translateY(0) rotate(-25deg)}50%{transform:translateY(-12px) rotate(-22deg)}}
+  @keyframes star-breathe{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.12)}}
+  @media(prefers-reduced-motion:reduce){.art-orbit,.art-disc,.art-star{animation:none}}
+</style>
+<style>
+  .glow-button{position:relative;overflow:hidden;isolation:isolate;--glow-x:50%;--glow-y:50%}
+  .glow-button::before{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(circle 75px at var(--glow-x) var(--glow-y),rgba(255,255,255,.38),transparent 80%);opacity:0;transition:opacity .25s ease;pointer-events:none}
+  .glow-button:hover::before,.glow-button:focus-visible::before{opacity:1}
+  .glow-button:hover{filter:none}
+  @media(hover:none),(prefers-reduced-motion:reduce){.glow-button::before{display:none}}
+</style>
+<script>
+  const glowButton = document.querySelector<HTMLElement>('[data-glow-button]');
+  if (glowButton && matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches) {
+    glowButton.addEventListener('pointermove', (event) => {
+      const rect = glowButton.getBoundingClientRect();
+      glowButton.style.setProperty('--glow-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+      glowButton.style.setProperty('--glow-y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
+    });
+    glowButton.addEventListener('pointerleave', () => {
+      glowButton.style.setProperty('--glow-x', '50%');
+      glowButton.style.setProperty('--glow-y', '50%');
+    });
+  }
+</script>

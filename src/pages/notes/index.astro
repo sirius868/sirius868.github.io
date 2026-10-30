@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { dateText } from '../../lib/articles';
+import { getPublishedNotes, noteUrl } from '../../lib/notes';
+import { notePageCount, notePageSlice } from '../../lib/notes';
+import Pagination from '../../components/Pagination.astro';
+
+const notes = await getPublishedNotes();
+const count = notePageCount(notes.length);
+---
+<BaseLayout title="笔记" description="yh 的简短笔记与日常想法。" section="notes">
+  <section class="page-head"><div class="eyebrow">THOUGHTS IN PROGRESS</div><h1>笔记<span style="color:var(--accent)">.</span></h1><p>一些还在生长的想法，短一点，也自由一点。</p></section>
+  {notes.length > 0 ? <div class="notes-list reading-width paginated-notes">{notePageSlice(notes, 1).map((note) => <article class="note-item"><time datetime={note.data.pubDate.toISOString()}>{dateText(note.data.pubDate)}</time><h2><a href={noteUrl(note)}>{note.data.title} <span aria-hidden="true">↗</span></a></h2><p>{note.data.description}</p></article>)}</div> : <div class="empty-state">暂时没有已发布的笔记。</div>}
+  <Pagination page={1} count={count} basePath="/notes/" label="笔记分页" />
+</BaseLayout>
+<style>.notes-list{margin-top:12px}.paginated-notes{min-height:480px}.note-item{padding:26px 0;border-bottom:1px solid var(--line)}.note-item:first-child{border-top:1px solid var(--line)}.note-item time{color:var(--muted);font-size:.8rem}.note-item h2{font-size:1.35rem;letter-spacing:-.035em;margin:7px 0}.note-item h2 a{display:inline-flex;align-items:center;gap:10px}.note-item h2 a:hover{color:var(--accent)}.note-item h2 span{font-size:1rem;color:var(--muted)}.note-item p{color:var(--muted);margin:0;font-size:.94rem}</style>

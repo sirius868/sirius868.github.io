@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="页面未找到" description="这个页面可能已移动，或地址输入有误。">
+  <section class="not-found"><span class="eyebrow">404 / PAGE NOT FOUND</span><h1>这页走丢了<span style="color:var(--accent)">.</span></h1><p>这个地址没有对应的页面。试着从首页或文章列表重新开始。</p><div><a class="button" href="/">返回首页</a><a class="button button-outline" href="/blog/">浏览文章</a></div></section>
+</BaseLayout>
+<style>.not-found{min-height:55vh;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.not-found h1{font-size:clamp(2.8rem,6vw,5rem);letter-spacing:-.07em;margin:18px 0}.not-found p{color:var(--muted);margin:0 0 24px}.not-found>div{display:flex;gap:10px;flex-wrap:wrap}</style>

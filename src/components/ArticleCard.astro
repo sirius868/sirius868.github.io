@@ -1,0 +1,12 @@
+---
+import type { Article } from '../lib/articles';
+import { articleUrl, dateText } from '../lib/articles';
+interface Props { article: Article; }
+const { article } = Astro.props;
+---
+<article class="article-card">
+  <div class="card-meta"><time datetime={article.data.pubDate.toISOString()}>{dateText(article.data.pubDate)}</time>{article.data.featured && <span>精选文章</span>}</div>
+  <h3><a href={articleUrl(article)}>{article.data.title}</a></h3>
+  <p>{article.data.description}</p>
+  <div class="card-bottom"><div class="tag-list">{article.data.tags.map((tag) => <a class="tag" href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}</div><span class="arrow" aria-hidden="true">↗</span></div>
+</article>

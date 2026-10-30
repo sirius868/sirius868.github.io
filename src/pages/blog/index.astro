@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Pagination from '../../components/Pagination.astro';
+import { getPublishedArticles, pageCount, pageSlice } from '../../lib/articles';
+
+const articles = await getPublishedArticles();
+const count = pageCount(articles.length);
+const tags = [...new Set(articles.flatMap((article) => article.data.tags))].sort((a, b) => a.localeCompare(b, 'zh-CN'));
+---
+<BaseLayout title="文章" description="阅读 yhblog 的全部文章，关于阅读、创作与日常。" section="blog">
+  <section class="page-head"><div class="eyebrow">ALL STORIES</div><h1>文章<span style="color:var(--accent)">.</span></h1><p>一些持续记录的想法。愿你在这里找到可以继续追问的问题。</p></section>
+  {tags.length > 0 && <nav class="pill-row" aria-label="按标签筛选"><a href="/blog/" aria-current="page">全部</a>{tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}</nav>}
+  {articles.length > 0 ? <div class="article-grid paginated-grid">{pageSlice(articles, 1).map((article) => <ArticleCard article={article} />)}</div> : <div class="empty-state">暂时没有已发布的文章。</div>}
+  <Pagination page={1} count={count} />
+</BaseLayout>
