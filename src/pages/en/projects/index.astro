@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ProjectShowcase from '../../../components/ProjectShowcase.astro';
+import { getPublishedProjects } from '../../../lib/projects';
+import { getEnglishTranslations } from '../../../lib/translations';
+
+const [projects, translations] = await Promise.all([getPublishedProjects(), getEnglishTranslations()]);
+---
+<BaseLayout title="Projects" description="Projects, the problems they solve, and the decisions behind them." section="projects" locale="en">
+  <ProjectShowcase projects={projects} translations={translations} locale="en" />
+</BaseLayout>

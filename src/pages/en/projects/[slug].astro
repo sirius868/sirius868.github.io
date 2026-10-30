@@ -1,0 +1,24 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPublishedProjects } from '../../../lib/projects';
+import { getEnglishTranslations } from '../../../lib/translations';
+
+export async function getStaticPaths() {
+  const [projects, translations] = await Promise.all([getPublishedProjects(), getEnglishTranslations()]);
+  return projects.map((project) => ({ params: { slug: project.data.slug }, props: { project, translation: translations.get(`projects:${project.data.slug}`) } }));
+}
+
+const { project, translation } = Astro.props;
+const content = translation ?? project;
+const { Content } = await render(content);
+---
+<BaseLayout title={content.data.title} description={content.data.description} section="projects" locale="en" contentLanguage={translation ? 'en' : 'zh'} translated={Boolean(translation)}>
+  <article class="project-detail reading-width">
+    <a class="text-link" href="/en/projects/">← Back to projects</a>
+    <header><div class="eyebrow">{project.data.category} / {project.data.year}</div><h1>{content.data.title}<span>.</span></h1><p>{content.data.description}</p>{!translation && <div class="translation-notice">This project is available in Chinese only.</div>}<div class="stack-list">{project.data.stack.map((tech) => <span>{tech}</span>)}</div><div class="detail-actions">{project.data.website && <a href={project.data.website} target="_blank" rel="noopener noreferrer">Visit site ↗</a>}{project.data.repository && <a href={project.data.repository} target="_blank" rel="noopener noreferrer">Source code ↗</a>}</div></header>
+    <div class="article-body"><Content /></div>
+    <div class="article-end"><a class="text-link" href="/en/projects/">← More projects</a></div>
+  </article>
+</BaseLayout>
+<style>.project-detail{padding-top:67px}.project-detail header{padding:30px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}.project-detail h1{font-size:clamp(3rem,7vw,5rem);letter-spacing:-.07em;line-height:1.13;margin:14px 0}.project-detail h1 span{color:var(--muted)}.project-detail header p{color:var(--muted);font-size:1.08rem;line-height:1.8;margin:0 0 25px}.stack-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.stack-list span{padding:6px 11px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--muted);font-size:.8rem}.detail-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:27px}.detail-actions a{padding:10px 15px;border:1px solid var(--line);border-radius:10px;font-size:.87rem;font-weight:700;transition:transform .2s ease,background-color .2s ease}.detail-actions a:hover{background:var(--soft);transform:translateY(-2px)}@media(max-width:700px){.project-detail{padding-top:45px}}@media(prefers-reduced-motion:reduce){.detail-actions a{transition:none}.detail-actions a:hover{transform:none}}</style>

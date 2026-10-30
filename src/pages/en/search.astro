@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import SearchForm from '../../components/SearchForm.astro';
 ---
-<BaseLayout title="Search" description="Search published articles and notes." locale="en" section="search">
-  <section class="en-page-head"><div class="eyebrow">FIND SOMETHING INTERESTING</div><h1>Search.</h1><p>Find words in articles and notes.</p></section>
-  <form class="search-form" action="/en/search/" method="get" role="search"><input id="query" name="q" type="search" placeholder="Search articles or notes" aria-label="Search articles and notes" autocomplete="off" /><button class="button" type="submit">Search ↗</button></form>
+<BaseLayout title="Search" description="Search published articles, notes, and projects." locale="en" section="search">
+  <section class="en-page-head"><div class="eyebrow">FIND SOMETHING INTERESTING</div><h1>Search.</h1><p>Find words in articles, notes, and projects.</p></section>
+  <SearchForm locale="en" />
   <p id="search-status" role="status">Enter a keyword to search.</p>
   <div id="search-results" aria-live="polite"></div>
 </BaseLayout>
@@ -20,7 +21,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     fetch('/en/search-index.json').then((response)=>{if(!response.ok) throw new Error('search index unavailable');return response.json() as Promise<SearchItem[]>}).then((items)=>{
       const matches=searchContent(items,query);
       status.textContent=matches.length?`${matches.length} result${matches.length===1?'':'s'} for “${query}”.`:`No results for “${query}”. Try another keyword.`;
-      for(const [type,title] of [['article','Articles'],['note','Notes']] as const){
+      for(const [type,title] of [['article','Articles'],['note','Notes'],['project','Projects']] as const){
         const groupItems=matches.filter((item)=>item.type===type);
         if(!groupItems.length) continue;
         const group=document.createElement('section');group.className='search-group';group.setAttribute('aria-label',title);

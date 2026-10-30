@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectShowcase from '../../components/ProjectShowcase.astro';
+import { getPublishedProjects } from '../../lib/projects';
+
+const projects = await getPublishedProjects();
+---
+<BaseLayout title="项目" description="项目展示：做过的东西、解决的问题与技术取舍。" section="projects">
+  <ProjectShowcase projects={projects} translations={new Map()} locale="zh" />
+</BaseLayout>

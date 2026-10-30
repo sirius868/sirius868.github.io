@@ -7,7 +7,7 @@ interface Props {
   title: string;
   description: string;
   pathname?: string;
-  section?: 'home' | 'blog' | 'notes' | 'about' | 'search';
+  section?: 'home' | 'blog' | 'notes' | 'projects' | 'about' | 'search';
   locale?: Locale;
   alternatePath?: string;
   contentLanguage?: Locale;
@@ -23,6 +23,7 @@ const nav = [
   { key: 'home', label: t.home, href: localizedPath('/', locale) },
   { key: 'blog', label: t.blog, href: localizedPath('/blog/', locale) },
   { key: 'notes', label: t.notes, href: localizedPath('/notes/', locale) },
+  { key: 'projects', label: t.projects, href: localizedPath('/projects/', locale) },
   { key: 'about', label: t.about, href: localizedPath('/about/', locale) },
   { key: 'search', label: t.search, href: localizedPath('/search/', locale) }
 ] as const;
@@ -32,7 +33,7 @@ const nav = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/favicon.png?v=2" />
     <meta name="theme-color" content="#ffffff" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
@@ -95,7 +96,7 @@ const nav = [
       <main id="main"><slot /></main>
       <footer class="site-footer">
         <div><strong>{site.name}</strong><span>{t.footer}</span></div>
-        <div class="footer-links"><a href={localizedPath('/blog/', locale)}>{t.blog}</a><a href={localizedPath('/notes/', locale)}>{t.notes}</a><a href={localizedPath('/about/', locale)}>{t.about}</a></div>
+        <div class="footer-links"><a href={localizedPath('/blog/', locale)}>{t.blog}</a><a href={localizedPath('/notes/', locale)}>{t.notes}</a><a href={localizedPath('/projects/', locale)}>{t.projects}</a><a href={localizedPath('/about/', locale)}>{t.about}</a></div>
         <small>© {new Date().getFullYear()} blog</small>
       </footer>
     </div>

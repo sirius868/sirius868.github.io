@@ -1,8 +1,9 @@
 import type { Article } from './articles';
 import type { Note } from './notes';
+import type { Project } from './projects';
 
 export type SearchItem = {
-  type: 'article' | 'note';
+  type: 'article' | 'note' | 'project';
   title: string;
   description: string;
   date: string;
@@ -70,6 +71,19 @@ export function noteSearchItem(note: Note, body: string): SearchItem {
     url: `/notes/${note.data.slug}/`,
     body: stripMarkdown(body),
     sections: [{ title: '正文', slug: '', body: stripMarkdown(body) }]
+  };
+}
+
+export function projectSearchItem(project: Project, body: string, headings: Heading[] = []): SearchItem {
+  return {
+    type: 'project',
+    title: project.data.title,
+    description: project.data.description,
+    date: new Date(Date.UTC(project.data.year, 0, 1)).toISOString(),
+    tags: [project.data.category, ...project.data.stack],
+    url: `/projects/${project.data.slug}/`,
+    body: stripMarkdown(body),
+    sections: contentSections(body, headings)
   };
 }
 

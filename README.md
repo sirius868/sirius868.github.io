@@ -1,6 +1,6 @@
 # Blog
 
-基于 Astro 的静态技术博客，支持 Markdown/MDX 文章、笔记、标签、站内搜索、分页和主题切换。
+基于 Astro 的静态技术博客，支持 Markdown/MDX 文章、笔记、项目展示、标签、站内搜索、分页和主题切换。
 
 ## 本地运行
 
@@ -37,7 +37,9 @@ draft: false
 
 `slug` 使用小写字母、数字和连字符，并保持唯一。设置 `draft: true` 可让内容不出现在公开页面。笔记可以省略 `tags`。
 
-英文界面位于 `/en/`。文章与笔记的英文稿放在 `src/content/translations/`，元信息填写 `type`（`blog` 或 `notes`）、与中文内容一致的 `slug`、英文 `title` 和 `description`。没有英文稿的内容会在英文界面保留中文并标注原文语言。
+英文界面位于 `/en/`。文章、笔记和项目的英文稿放在 `src/content/translations/`，元信息填写 `type`（`blog`、`notes` 或 `projects`）、与中文内容一致的 `slug`、英文 `title` 和 `description`。没有英文稿的内容会在英文界面保留中文并标注原文语言。
+
+项目放在 `src/content/projects/`。每个 Markdown 文件填写 `slug`、`title`、`description`、`category`、`year` 和 `stack`；可选填 `repository`、`website`，用 `featured: true` 置顶。项目英文稿也放在 `src/content/translations/`，`type` 填 `projects`，`slug` 与中文稿一致。
 
 ## 部署
 

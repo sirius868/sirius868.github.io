@@ -1,0 +1,37 @@
+---
+import type { Locale } from '../lib/locale';
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const en = locale === 'en';
+---
+<form class="search-form liquid-search" id="search-form" action={en ? '/en/search/' : '/search/'} method="get" role="search"><input class="search-input" id="query" name="q" type="search" placeholder={en ? 'Search articles, notes, or projects' : '搜索文章、笔记或项目'} aria-label={en ? 'Search articles, notes, and projects' : '搜索文章、笔记和项目'} autocomplete="off" /><button class="button glass-search-button" type="submit"><span>{en ? 'Search' : '搜索'}</span><span aria-hidden="true">↗</span></button></form>
+<style>
+  .liquid-search{--light-x:50%;--light-y:0%;position:relative;isolation:isolate;align-items:center;max-width:720px;padding:7px;gap:7px;border:1px solid rgba(255,255,255,.88);border-radius:19px;background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(238,238,240,.6) 55%,rgba(255,255,255,.84));box-shadow:inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(120,120,130,.1),0 12px 34px rgba(25,25,30,.1),0 2px 7px rgba(25,25,30,.045);backdrop-filter:blur(20px) saturate(145%);-webkit-backdrop-filter:blur(20px) saturate(145%);transition:box-shadow .3s ease,border-color .3s ease,transform .3s ease}
+  .liquid-search::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:radial-gradient(circle 150px at var(--light-x) var(--light-y),rgba(255,255,255,.95),transparent 80%);pointer-events:none}
+  .liquid-search:focus-within{border-color:rgba(120,120,130,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 14px 38px rgba(25,25,30,.13),0 0 0 3px rgba(30,30,30,.07)}
+  .liquid-search .search-input{min-height:52px;padding:12px 16px;border:0;border-radius:12px;background:transparent;color:var(--ink);box-shadow:none;font-size:1rem}
+  .liquid-search .search-input::placeholder{color:#777}
+  .liquid-search .search-input:focus{outline:none}
+  .liquid-search .search-input::-webkit-search-cancel-button{cursor:pointer}
+  .liquid-search .glass-search-button{position:relative;isolation:isolate;overflow:hidden;min-width:108px;min-height:50px;padding:11px 19px;gap:12px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:linear-gradient(145deg,#39393d 0%,#1d1d20 52%,#09090b 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.26),inset 0 -1px 0 rgba(0,0,0,.38),0 5px 13px rgba(0,0,0,.2);text-shadow:0 1px 1px rgba(0,0,0,.25);transition:transform .23s ease,box-shadow .23s ease,filter .23s ease}
+  .liquid-search .glass-search-button::before{content:'';position:absolute;inset:-50% -35%;z-index:-1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.26) 50%,transparent 65%);transform:translateX(-110%) rotate(8deg);transition:transform .5s ease;pointer-events:none}
+  .liquid-search .glass-search-button:hover{transform:translateY(-2px);filter:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 9px 18px rgba(0,0,0,.24)}
+  .liquid-search .glass-search-button:hover::before{transform:translateX(110%) rotate(8deg)}
+  .liquid-search .glass-search-button:active{transform:translateY(0) scale(.98);box-shadow:inset 0 2px 4px rgba(0,0,0,.28),0 2px 5px rgba(0,0,0,.15)}
+  :global(:root[data-theme=dark]) .liquid-search{border-color:rgba(255,255,255,.16);background:linear-gradient(135deg,rgba(72,72,76,.68),rgba(32,32,35,.72) 58%,rgba(58,58,62,.58));box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 12px 35px rgba(0,0,0,.26)}
+  :global(:root[data-theme=dark]) .liquid-search::before{background:radial-gradient(circle 150px at var(--light-x) var(--light-y),rgba(255,255,255,.14),transparent 80%)}
+  :global(:root[data-theme=dark]) .liquid-search .search-input::placeholder{color:#aaa}
+  @media(max-width:700px){.liquid-search{flex-direction:row;gap:5px;padding:5px;border-radius:16px}.liquid-search .search-input{min-height:48px;padding:10px 11px;font-size:.92rem}.liquid-search .glass-search-button{width:auto;min-width:74px;min-height:46px;padding:9px 11px;gap:5px;font-size:.88rem}}
+  @media(max-width:360px){.liquid-search .glass-search-button{min-width:65px;padding-inline:8px}}
+  @media(prefers-reduced-motion:reduce){.liquid-search,.liquid-search .glass-search-button,.liquid-search .glass-search-button::before{transition:none}.liquid-search .glass-search-button:hover,.liquid-search .glass-search-button:active{transform:none}.liquid-search .glass-search-button:hover::before{transform:translateX(-110%) rotate(8deg)}}
+</style>
+<script>
+  const searchForm = document.querySelector<HTMLElement>('.liquid-search');
+  if (searchForm && matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches) {
+    searchForm.addEventListener('pointermove', (event) => {
+      const rect = searchForm.getBoundingClientRect();
+      searchForm.style.setProperty('--light-x', `${event.clientX - rect.left}px`);
+      searchForm.style.setProperty('--light-y', `${event.clientY - rect.top}px`);
+    });
+  }
+</script>

@@ -62,7 +62,7 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await page.goto('/search/?q=MARKDOWN');
   await expect(page.getByRole('link', { name: /喜欢那些安静的工具/ })).toBeVisible();
   await page.goto('/search/');
-  await expect(page.getByText('输入关键词，搜索文章和笔记。')).toBeVisible();
+  await expect(page.getByText('输入关键词，搜索文章、笔记和项目。')).toBeVisible();
   await page.locator('.mobile-menu summary').click();
   await expect(page.getByRole('navigation', { name: '移动端主导航' }).getByRole('link', { name: '首页' })).toBeVisible();
 });
@@ -73,6 +73,7 @@ test('search groups published articles and notes without indexing the about page
   const items = await response.json() as { type: string; url: string }[];
   expect(items.some((item) => item.type === 'article')).toBe(true);
   expect(items.some((item) => item.type === 'note')).toBe(true);
+  expect(items.some((item) => item.type === 'project')).toBe(true);
   expect(items.some((item) => item.url === '/about/' || item.url.includes('private-'))).toBe(false);
 
   await page.goto('/search/?q=问题');
@@ -92,6 +93,30 @@ test('search groups published articles and notes without indexing the about page
   await expect(noteResult.locator('mark')).toHaveText('脑海里');
   await page.goto('/search/?q=一点帮助');
   await expect(page.getByText(/没有找到/)).toBeVisible();
+});
+
+test('projects, bilingual search material, and browser favicon are connected', async ({ page, request }) => {
+  await page.goto('/projects/');
+  await expect(page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '项目' })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('heading', { name: 'Blog' })).toBeVisible();
+  await page.getByRole('link', { name: '查看项目' }).click();
+  await expect(page).toHaveURL(/\/projects\/blog-site\/$/);
+  await expect(page.getByRole('heading', { name: '想解决什么' })).toBeVisible();
+  await page.getByRole('link', { name: 'Switch to English' }).click();
+  await expect(page).toHaveURL(/\/en\/projects\/blog-site\/$/);
+  await expect(page.getByRole('heading', { name: 'What it solves' })).toBeVisible();
+  await page.goto('/search/?q=阅读体验');
+  await expect(page.getByRole('region', { name: '项目' }).getByRole('link', { name: /Blog/ })).toBeVisible();
+  const chineseMaterial = await page.locator('.liquid-search').evaluate((element) => getComputedStyle(element).backgroundImage);
+  await page.goto('/en/search/?q=static');
+  await expect(page.getByRole('region', { name: 'Projects' }).getByRole('link', { name: /Blog/ })).toBeVisible();
+  await expect(page.locator('.glass-search-button')).toBeVisible();
+  expect(await page.locator('.liquid-search').evaluate((element) => getComputedStyle(element).backgroundImage)).toBe(chineseMaterial);
+  const icon = await request.get('/favicon.png');
+  expect(icon.ok()).toBe(true);
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/projects/');
+  expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test('article table of contents and circular reading progress work on desktop and mobile', async ({ page }) => {
