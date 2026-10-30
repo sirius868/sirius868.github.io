@@ -25,4 +25,14 @@ const notes = defineCollection({
   })
 });
 
-export const collections = { blog, notes };
+const translations = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/translations' }),
+  schema: z.object({
+    type: z.enum(['blog', 'notes']),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    title: z.string().min(1),
+    description: z.string().min(1)
+  })
+});
+
+export const collections = { blog, notes, translations };

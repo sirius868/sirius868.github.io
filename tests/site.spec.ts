@@ -19,7 +19,7 @@ test('home, article flow and draft exclusion', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '这页走丢了.' })).toBeVisible();
   await page.goto('/blog/page/2/');
   await page.getByRole('link', { name: '上一页' }).click();
-  await page.getByRole('link', { name: '让笔记慢慢长成文章' }).click();
+  await page.goto('/blog/slow-notes/');
   await expect(page.getByRole('heading', { name: '从摘录走向自己的问题' })).toBeVisible();
   await expect(page.getByRole('img', { name: '从记录、追问、回看到重写的四步流程' })).toBeVisible();
   await expect(page.getByRole('link', { name: '全部文章' })).toBeVisible();
@@ -81,8 +81,66 @@ test('search groups published articles and notes without indexing the about page
   await expect(page.getByRole('region', { name: '笔记' }).getByRole('link', { name: /为什么还要写下来/ })).toBeVisible();
   await page.goto('/search/?q=searchDocs');
   await expect(page.getByRole('region', { name: '文章' }).getByRole('link', { name: /AI Agent 的工程结构/ })).toBeVisible();
+  await page.goto('/search/?q=缓存击穿');
+  const cacheResult = page.getByRole('region', { name: '文章' }).getByRole('link', { name: /Caffeine \+ Redis/ });
+  await expect(cacheResult.getByText('匹配位置 · 三种常见的“缓存被打穿”')).toBeVisible();
+  await expect(cacheResult.locator('mark')).toHaveText('缓存击穿');
+  await expect(cacheResult).toHaveAttribute('href', /#.+/);
+  await page.goto('/search/?q=脑海里');
+  const noteResult = page.getByRole('region', { name: '笔记' }).getByRole('link', { name: /为什么还要写下来/ });
+  await expect(noteResult.getByText('匹配位置 · 正文')).toBeVisible();
+  await expect(noteResult.locator('mark')).toHaveText('脑海里');
   await page.goto('/search/?q=一点帮助');
   await expect(page.getByText(/没有找到/)).toBeVisible();
+});
+
+test('article table of contents and circular reading progress work on desktop and mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto('/blog/backend-multi-level-cache/');
+  const progress = page.getByRole('progressbar', { name: '文章阅读进度' });
+  const desktopToc = page.locator('.article-toc');
+  await expect(desktopToc).toBeVisible();
+  await expect(progress.locator('.progress-value')).toContainText('%');
+  await desktopToc.getByRole('link', { name: '更新时，真正难的是“旧答案”' }).click();
+  expect(await page.evaluate(() => decodeURIComponent(location.hash))).toBe('#更新时真正难的是旧答案');
+  await expect.poll(async () => Number(await progress.getAttribute('aria-valuenow'))).toBeGreaterThan(0);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(progress).toHaveAttribute('aria-valuenow', '100');
+  await expect(progress.locator('.progress-value')).toHaveText('100%');
+
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.reload();
+  await expect(desktopToc).toBeHidden();
+  const mobileToc = page.locator('.article-toc-mobile');
+  await expect(mobileToc).toBeVisible();
+  await mobileToc.locator('summary').click();
+  await expect(mobileToc.getByRole('link', { name: 'Caffeine 到底是什么' })).toBeVisible();
+  expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('English interface keeps navigation local and labels untranslated content', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Switch to English' }).click();
+  await expect(page).toHaveURL(/\/en\/$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Articles' })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Articles' }).click();
+  await expect(page).toHaveURL(/\/en\/blog\/$/);
+  await page.getByRole('link', { name: /Caffeine \+ Redis/ }).first().click();
+  await expect(page.getByText('This article is available in Chinese only.')).toBeVisible();
+  await expect(page.locator('.article-body')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.getByRole('link', { name: 'Switch to Chinese' })).toHaveAttribute('href', '/blog/backend-multi-level-cache/');
+  await page.goto('/en/notes/why-i-write/');
+  await expect(page.getByRole('heading', { name: 'Why I Still Write Things Down' })).toBeVisible();
+  await expect(page.locator('.article-body')).toHaveAttribute('lang', 'en');
+  await page.goto('/en/search/?q=idea');
+  await expect(page.getByRole('region', { name: 'Notes' }).getByRole('link', { name: /Why I Still Write Things Down/ })).toBeVisible();
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/en/blog/');
+  await expect(page.getByRole('button', { name: 'Show tags' })).toBeVisible();
+  await page.getByRole('button', { name: 'Show tags' }).click();
+  await expect(page.getByRole('button', { name: 'Hide tags' })).toHaveAttribute('aria-expanded', 'true');
+  expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test('keyboard navigation and reduced motion remain usable', async ({ page }) => {
@@ -234,6 +292,11 @@ test('tag filters collapse to one row and expand on demand', async ({ page }) =>
   const toggle = page.getByRole('button', { name: '展开标签' });
   await expect(toggle).toBeVisible();
   await expect(filter).toHaveClass(/is-collapsed/);
+  const firstRowFits = await filter.locator('.pill-row').evaluate((element) => {
+    const firstTag = element.querySelector('a');
+    return firstTag !== null && firstTag.getBoundingClientRect().bottom <= element.getBoundingClientRect().bottom;
+  });
+  expect(firstRowFits).toBe(true);
   const visibleRowHeight = await filter.locator('.pill-row').evaluate((element) => element.getBoundingClientRect().height);
   const hiddenTags = filter.locator('a[aria-hidden="true"]');
   expect(await hiddenTags.count()).toBeGreaterThan(0);
@@ -249,5 +312,5 @@ test('tag filters collapse to one row and expand on demand', async ({ page }) =>
   await expect(page.getByRole('button', { name: '展开标签' })).toBeVisible();
   await expect(page.locator('.site-footer').getByRole('link', { name: 'RSS' })).toHaveCount(0);
   await page.setViewportSize({ width: 1100, height: 800 });
-  await expect(page.locator('.tag-filter-toggle')).toBeHidden();
+  await expect(page.locator('.tag-filter-toggle')).toBeVisible();
 });

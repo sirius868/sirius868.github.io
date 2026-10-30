@@ -1,0 +1,24 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleToc from '../../../components/ArticleToc.astro';
+import ReadingProgress from '../../../components/ReadingProgress.astro';
+import { getPublishedArticles, dateText } from '../../../lib/articles';
+import { getEnglishTranslations } from '../../../lib/translations';
+export async function getStaticPaths(){const articles=await getPublishedArticles();return articles.map((article)=>({params:{slug:article.data.slug},props:{article}}));}
+const {article}=Astro.props;
+const translations=await getEnglishTranslations();
+const translation=translations.get(`blog:${article.data.slug}`);
+const {Content,headings}=await render(translation || article);
+---
+<BaseLayout title={translation?.data.title || article.data.title} description={translation?.data.description || article.data.description} locale="en" section="blog" contentLanguage={translation ? 'en' : 'zh'} translated={Boolean(translation)}>
+  <div class="en-detail-layout">
+    <ArticleToc headings={headings} label="On this page" />
+    <article class="reading-width">
+      <header class="en-article-header"><a class="text-link" href="/en/blog/">← Back to articles</a><div class="article-meta"><time datetime={article.data.pubDate.toISOString()}>{dateText(article.data.pubDate)}</time></div><h1>{translation?.data.title || article.data.title}</h1><p>{translation?.data.description || article.data.description}</p>{!translation && <p class="translation-notice">This article is available in Chinese only.</p>}<div class="tag-list">{article.data.tags.map((tag)=><a class="tag" href={`/en/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}</div></header>
+      <div class="article-body" data-article-body lang={translation ? 'en' : 'zh-CN'}><Content /></div>
+      <div class="article-end"><a class="text-link" href="/en/blog/">← More articles</a></div>
+    </article>
+  </div>
+  <ReadingProgress label="Reading progress" />
+</BaseLayout>

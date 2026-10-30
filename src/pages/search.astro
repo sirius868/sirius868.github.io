@@ -26,10 +26,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   @media(max-width:700px){.liquid-search{flex-direction:row;gap:5px;padding:5px;border-radius:16px}.liquid-search .search-input{min-height:48px;padding:10px 11px;font-size:.92rem}.liquid-search .glass-search-button{width:auto;min-width:74px;min-height:46px;padding:9px 11px;gap:5px;font-size:.88rem}}
   @media(max-width:360px){.liquid-search .glass-search-button{min-width:65px;padding-inline:8px}}
   @media(prefers-reduced-motion:reduce){.liquid-search,.liquid-search .glass-search-button,.liquid-search .glass-search-button::before{transition:none}.liquid-search .glass-search-button:hover,.liquid-search .glass-search-button:active{transform:none}.liquid-search .glass-search-button:hover::before{transform:translateX(-110%) rotate(8deg)}}
-  .search-status{color:var(--muted);margin:20px 0}.search-results{display:grid;gap:30px}.search-results :global(.search-group h2){font-size:1.15rem;margin:0 0 12px}.search-results :global(.search-group h2 span){color:var(--muted);font-size:.85rem;font-weight:500}.search-results :global(.search-group-list){display:grid;gap:12px}.search-results :global(.search-result){display:block;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.search-results :global(.search-result:hover){border-color:var(--accent)}.search-results :global(.search-result h3){font-size:1.2rem;margin:0 0 6px}.search-results :global(.search-result p){color:var(--muted);margin:0}.search-results :global(.search-result small){display:block;color:var(--accent);margin-top:12px}
+  .search-status{color:var(--muted);margin:20px 0}.search-results{display:grid;gap:30px}.search-results :global(.search-group h2){font-size:1.15rem;margin:0 0 12px}.search-results :global(.search-group h2 span){color:var(--muted);font-size:.85rem;font-weight:500}.search-results :global(.search-group-list){display:grid;gap:12px}.search-results :global(.search-result){display:block;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.search-results :global(.search-result:hover){border-color:var(--accent)}.search-results :global(.search-result h3){font-size:1.2rem;margin:0 0 6px}.search-results :global(.search-result p){color:var(--muted);margin:0;line-height:1.7}.search-results :global(.search-result .match-location){color:var(--ink);font-size:.78rem;font-weight:700;margin:0 0 7px}.search-results :global(.search-result mark){padding:1px 2px;border-radius:3px;background:var(--accent-soft);color:var(--ink);font-weight:700}.search-results :global(.search-result small){display:block;color:var(--accent);margin-top:12px}
 </style>
 <script>
-  import { searchContent, type SearchItem } from '../lib/search';
+  import { searchContent, searchPreview, type SearchItem } from '../lib/search';
   const searchForm = document.querySelector<HTMLElement>('.liquid-search');
   if (searchForm && matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches) {
     searchForm.addEventListener('pointermove', (event) => {
@@ -42,6 +42,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const status = document.querySelector<HTMLElement>('#search-status');
   const results = document.querySelector<HTMLElement>('#search-results');
   const query = new URLSearchParams(location.search).get('q')?.trim() || '';
+  const appendHighlighted = (element: HTMLElement, source: string, term: string) => {
+    const at = source.toLocaleLowerCase().indexOf(term.toLocaleLowerCase());
+    if (at < 0) { element.textContent = source; return; }
+    element.append(document.createTextNode(source.slice(0, at)));
+    const highlight = document.createElement('mark');
+    highlight.textContent = source.slice(at, at + term.length);
+    element.append(highlight, document.createTextNode(source.slice(at + term.length)));
+  };
   if (input) input.value = query;
   if (query && status && results) {
     status.textContent = `正在搜索「${query}」…`;
@@ -64,16 +72,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const list = document.createElement('div');
           list.className = 'search-group-list';
           for (const item of groupItems) {
+            const preview = searchPreview(item, query);
             const link = document.createElement('a');
             link.className = 'search-result';
-            link.href = item.url;
+            link.href = preview.url;
             const heading = document.createElement('h3');
             heading.textContent = item.title;
+            const locationLabel = document.createElement('p');
+            locationLabel.className = 'match-location';
+            locationLabel.textContent = `匹配位置 · ${preview.location}`;
             const description = document.createElement('p');
-            description.textContent = item.description;
+            appendHighlighted(description, preview.excerpt, query);
             const date = document.createElement('small');
             date.textContent = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(item.date));
-            link.append(heading, description, date);
+            link.append(heading, locationLabel, description, date);
             list.append(link);
           }
           group.append(groupHeading, list);

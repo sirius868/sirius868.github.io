@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import EnglishArticleCard from '../../../components/EnglishArticleCard.astro';
+import Pagination from '../../../components/Pagination.astro';
+import TagFilter from '../../../components/TagFilter.astro';
+import { getPublishedArticles, pageCount, pageSlice } from '../../../lib/articles';
+import { getEnglishTranslations } from '../../../lib/translations';
+const articles = await getPublishedArticles();
+const translations = await getEnglishTranslations();
+const tags = [...new Set(articles.flatMap((article) => article.data.tags))].sort((a,b)=>a.localeCompare(b,'zh-CN'));
+---
+<BaseLayout title="Articles" description="All published articles." locale="en" section="blog">
+  <section class="en-page-head"><div class="eyebrow">ALL STORIES</div><h1>Articles.</h1><p>Technical notes on AI agents, tools, and engineering.</p></section>
+  <TagFilter tags={tags} currentPage locale="en" />
+  <div class="article-grid paginated-grid">{pageSlice(articles,1).map((article)=><EnglishArticleCard article={article} translation={translations.get(`blog:${article.data.slug}`)} />)}</div>
+  <Pagination page={1} count={pageCount(articles.length)} basePath="/en/blog/" label="Article pages" locale="en" />
+</BaseLayout>

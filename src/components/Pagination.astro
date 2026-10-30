@@ -1,18 +1,22 @@
 ---
-interface Props { page: number; count: number; basePath?: string; label?: string; }
-const { page, count, basePath = '/blog/', label = '文章分页' } = Astro.props;
+interface Props { page: number; count: number; basePath?: string; label?: string; locale?: 'zh' | 'en'; }
+const { page, count, basePath = '/blog/', label = '文章分页', locale = 'zh' } = Astro.props;
+const previousLabel = locale === 'en' ? '← Previous' : '← 上一页';
+const nextLabel = locale === 'en' ? 'Next →' : '下一页 →';
+const targetLabel = locale === 'en' ? 'Page number' : '目标页码';
+const jumpLabel = locale === 'en' ? 'Go to page' : '跳转到指定页';
 const previous = page > 1 ? (page === 2 ? basePath : `${basePath}page/${page - 1}/`) : null;
 const next = page < count ? `${basePath}page/${page + 1}/` : null;
 ---
 {count > 1 && <nav class="pagination" aria-label={label}>
-  {previous ? <a class="page-link" href={previous}>← 上一页</a> : <span class="pagination-placeholder" aria-hidden="true">← 上一页</span>}
+  {previous ? <a class="page-link" href={previous}>{previousLabel}</a> : <span class="pagination-placeholder" aria-hidden="true">{previousLabel}</span>}
   <form class="page-count page-jump" aria-label={`跳转${label}`} data-page-jump data-base-path={basePath}>
-    <label class="sr-only" for="page-jump-input">目标页码</label>
-    <input id="page-jump-input" name="page" type="number" min="1" max={count} value={page} required inputmode="numeric" aria-label="目标页码" />
+    <label class="sr-only" for="page-jump-input">{targetLabel}</label>
+    <input id="page-jump-input" name="page" type="number" min="1" max={count} value={page} required inputmode="numeric" aria-label={targetLabel} />
     <span aria-hidden="true">/ {count}</span>
-    <button type="submit" aria-label="跳转到指定页" title="跳转到指定页">↗</button>
+    <button type="submit" aria-label={jumpLabel} title={jumpLabel}>↗</button>
   </form>
-  {next ? <a class="page-link" href={next}>下一页 →</a> : <span class="pagination-placeholder" aria-hidden="true">下一页 →</span>}
+  {next ? <a class="page-link" href={next}>{nextLabel}</a> : <span class="pagination-placeholder" aria-hidden="true">{nextLabel}</span>}
 </nav>}
 <script>
   const jumpForm = document.querySelector<HTMLFormElement>('[data-page-jump]');

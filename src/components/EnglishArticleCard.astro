@@ -1,0 +1,13 @@
+---
+import type { Article } from '../lib/articles';
+import { dateText } from '../lib/articles';
+import type { Translation } from '../lib/translations';
+interface Props { article: Article; translation?: Translation }
+const { article, translation } = Astro.props;
+---
+<article class="article-card">
+  <div class="card-meta"><time datetime={article.data.pubDate.toISOString()}>{dateText(article.data.pubDate)}</time>{article.data.featured && <span>Featured</span>}{!translation && <span>Chinese original</span>}</div>
+  <h3><a href={`/en/blog/${article.data.slug}/`} lang={translation ? 'en' : 'zh-CN'}>{translation?.data.title || article.data.title}</a></h3>
+  <p lang={translation ? 'en' : 'zh-CN'}>{translation?.data.description || article.data.description}</p>
+  <div class="card-bottom"><div class="tag-list">{article.data.tags.map((tag) => <a class="tag" href={`/en/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}</div><span class="arrow" aria-hidden="true">↗</span></div>
+</article>

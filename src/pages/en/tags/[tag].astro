@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import EnglishArticleCard from '../../../components/EnglishArticleCard.astro';
+import { getPublishedArticles } from '../../../lib/articles';
+import { getEnglishTranslations } from '../../../lib/translations';
+export async function getStaticPaths(){const articles=await getPublishedArticles();return [...new Set(articles.flatMap((article)=>article.data.tags))].map((tag)=>({params:{tag},props:{tag}}));}
+const {tag}=Astro.props;
+const articles=(await getPublishedArticles()).filter((article)=>article.data.tags.includes(tag));
+const translations=await getEnglishTranslations();
+---
+<BaseLayout title={`${tag} · Tag`} description={`Articles tagged ${tag}.`} locale="en" section="blog">
+  <section class="en-page-head"><div class="eyebrow">ARTICLES BY TOPIC</div><h1>{tag}.</h1><p>{articles.length} article{articles.length===1?'':'s'}. <a class="text-link" href="/en/blog/">View all articles ↗</a></p></section>
+  <div class="article-grid">{articles.map((article)=><EnglishArticleCard article={article} translation={translations.get(`blog:${article.data.slug}`)} />)}</div>
+</BaseLayout>

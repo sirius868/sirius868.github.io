@@ -1,0 +1,41 @@
+---
+interface Heading { depth: number; slug: string; text: string }
+interface Props { headings: Heading[]; label?: string }
+const { headings, label = '本文目录' } = Astro.props;
+const sections = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{sections.length > 0 && <>
+  <aside class="article-toc" aria-label={label}>
+    <span class="toc-label">{label}</span>
+    <nav aria-label={label}>
+      {sections.map((heading) => <a class:list={['toc-link', { 'toc-subheading': heading.depth === 3 }]} href={`#${heading.slug}`}>{heading.text}</a>)}
+    </nav>
+  </aside>
+  <details class="article-toc-mobile">
+    <summary>{label}<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" /></svg></summary>
+    <nav aria-label={label}>
+      {sections.map((heading) => <a class:list={['toc-link', { 'toc-subheading': heading.depth === 3 }]} href={`#${heading.slug}`}>{heading.text}</a>)}
+    </nav>
+  </details>
+</>}
+
+<style>
+  .article-toc{position:sticky;top:106px;align-self:start;max-height:calc(100vh - 130px);overflow:auto;scrollbar-width:thin;padding:8px 16px 8px 0}
+  .toc-label{display:block;margin-bottom:13px;color:var(--ink);font-size:.8rem;font-weight:700;letter-spacing:.04em}
+  nav{display:grid;gap:2px}
+  .toc-link{display:block;padding:7px 9px;border-left:2px solid transparent;border-radius:0 7px 7px 0;color:var(--muted);font-size:.83rem;line-height:1.5;overflow-wrap:anywhere;transition:color .2s ease,background-color .2s ease,border-color .2s ease}
+  .toc-link:hover,.toc-link:focus-visible{color:var(--ink);background:var(--soft);border-color:var(--accent)}
+  .toc-subheading{padding-left:18px;font-size:.78rem}
+  .article-toc-mobile{display:none}
+  @media(max-width:1160px){
+    .article-toc{display:none}
+    .article-toc-mobile{display:block;width:min(100%,740px);margin:8px auto 24px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+    .article-toc-mobile summary{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;list-style:none;cursor:pointer;color:var(--ink);font-size:.88rem;font-weight:700}
+    .article-toc-mobile summary::-webkit-details-marker{display:none}
+    .article-toc-mobile summary svg{transition:transform .2s ease}
+    .article-toc-mobile[open] summary svg{transform:rotate(180deg)}
+    .article-toc-mobile nav{max-height:50vh;overflow:auto;padding:0 10px 10px}
+  }
+  @media(prefers-reduced-motion:reduce){.toc-link,.article-toc-mobile summary svg{transition:none}}
+</style>

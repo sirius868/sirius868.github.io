@@ -1,0 +1,51 @@
+---
+interface Props { label?: string }
+const { label = '文章阅读进度' } = Astro.props;
+---
+<div class="reading-progress" role="progressbar" aria-label={label} aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-reading-progress>
+  <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <circle class="progress-track" cx="24" cy="24" r="19" />
+    <circle class="progress-fill" cx="24" cy="24" r="19" />
+  </svg>
+  <span class="progress-value" aria-hidden="true">0%</span>
+</div>
+
+<style>
+  .reading-progress{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));z-index:40;display:grid;place-items:center;width:56px;height:56px;border:1px solid var(--line);border-radius:50%;background:color-mix(in srgb,var(--surface) 90%,transparent);color:var(--ink);box-shadow:0 8px 28px rgba(0,0,0,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none}
+  .reading-progress svg{position:absolute;inset:4px;width:46px;height:46px;overflow:visible}
+  .reading-progress circle{fill:none;stroke-width:3.2}
+  .progress-track{stroke:var(--line)}
+  .progress-fill{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:119.38;stroke-dashoffset:calc(119.38 * (1 - var(--reading-progress,0)));transform:rotate(-90deg);transform-origin:50% 50%}
+  .progress-value{font-size:.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+  @media(max-width:700px){.reading-progress{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:48px;height:48px}.reading-progress svg{inset:3px;width:40px;height:40px}.progress-value{font-size:.63rem}}
+</style>
+
+<script>
+  const progress = document.querySelector<HTMLElement>('[data-reading-progress]');
+  const body = document.querySelector<HTMLElement>('[data-article-body]');
+  const value = progress?.querySelector<HTMLElement>('.progress-value');
+  let framePending = false;
+
+  const updateProgress = () => {
+    framePending = false;
+    if (!progress || !body || !value) return;
+    const rect = body.getBoundingClientRect();
+    const passed = window.innerHeight * 0.5 - rect.top;
+    const atPageEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+    const fraction = atPageEnd ? 1 : Math.max(0, Math.min(1, passed / Math.max(rect.height, 1)));
+    const percent = Math.round(fraction * 100);
+    progress.style.setProperty('--reading-progress', String(fraction));
+    progress.setAttribute('aria-valuenow', String(percent));
+    value.textContent = `${percent}%`;
+  };
+
+  const scheduleUpdate = () => {
+    if (framePending) return;
+    framePending = true;
+    requestAnimationFrame(updateProgress);
+  };
+
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', scheduleUpdate);
+  updateProgress();
+</script>

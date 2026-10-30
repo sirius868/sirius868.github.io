@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import EnglishNoteCard from '../../../components/EnglishNoteCard.astro';
+import Pagination from '../../../components/Pagination.astro';
+import { getPublishedNotes, notePageCount, notePageSlice } from '../../../lib/notes';
+import { getEnglishTranslations } from '../../../lib/translations';
+const notes=await getPublishedNotes();
+const translations=await getEnglishTranslations();
+---
+<BaseLayout title="Notes" description="Short notes and ideas in progress." locale="en" section="notes">
+  <section class="en-page-head"><div class="eyebrow">THOUGHTS IN PROGRESS</div><h1>Notes.</h1><p>Shorter thoughts, questions, and things worth keeping.</p></section>
+  <div class="en-notes-list reading-width paginated-notes">{notePageSlice(notes,1).map((note)=><EnglishNoteCard note={note} translation={translations.get(`notes:${note.data.slug}`)} />)}</div>
+  <Pagination page={1} count={notePageCount(notes.length)} basePath="/en/notes/" label="Note pages" locale="en" />
+</BaseLayout>

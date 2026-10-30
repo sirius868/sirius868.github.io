@@ -1,0 +1,8 @@
+---
+import type { Note } from '../lib/notes';
+import type { Translation } from '../lib/translations';
+import { dateText } from '../lib/articles';
+interface Props { note: Note; translation?: Translation }
+const { note, translation } = Astro.props;
+---
+<article class="note-item"><time datetime={note.data.pubDate.toISOString()}>{dateText(note.data.pubDate)}</time><h2><a href={`/en/notes/${note.data.slug}/`} lang={translation ? 'en' : 'zh-CN'}>{translation?.data.title || note.data.title} <span aria-hidden="true">↗</span></a></h2><p><span lang={translation ? 'en' : 'zh-CN'}>{translation?.data.description || note.data.description}</span>{!translation && <span class="translation-note"> · Chinese original</span>}</p></article>

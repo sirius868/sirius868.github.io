@@ -2,17 +2,19 @@
 interface Props {
   tags: string[];
   currentPage?: boolean;
+  locale?: 'zh' | 'en';
 }
 
-const { tags, currentPage = false } = Astro.props;
+const { tags, currentPage = false, locale = 'zh' } = Astro.props;
+const basePath = locale === 'en' ? '/en' : '';
 ---
-{tags.length > 0 && <div class="tag-filter" data-tag-filter>
-  <nav class="pill-row" id="article-tag-filter" aria-label="按标签筛选">
-    <a href="/blog/" aria-current={currentPage ? 'page' : undefined}>全部</a>
-    {tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}
+{tags.length > 0 && <div class="tag-filter" data-tag-filter data-locale={locale}>
+  <nav class="pill-row" id="article-tag-filter" aria-label={locale === 'en' ? 'Filter by tag' : '按标签筛选'}>
+    <a href={`${basePath}/blog/`} aria-current={currentPage ? 'page' : undefined}>{locale === 'en' ? 'All' : '全部'}</a>
+    {tags.map((tag) => <a href={`${basePath}/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}
   </nav>
   <button class="tag-filter-toggle" type="button" aria-controls="article-tag-filter" aria-expanded="false" hidden>
-    <span>展开标签</span>
+    <span>{locale === 'en' ? 'Show tags' : '展开标签'}</span>
     <svg class="tag-filter-chevron" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" /></svg>
   </button>
 </div>}
@@ -31,14 +33,15 @@ const { tags, currentPage = false } = Astro.props;
 
     // Reserve the toggle's width while measuring so the first row remains stable.
     toggle.hidden = false;
-    tags.style.setProperty('--tag-row-height', `${firstTag.offsetHeight}px`);
-    const overflows = tags.scrollHeight > firstTag.offsetHeight + 1;
+    const firstRowHeight = Math.ceil(firstTag.getBoundingClientRect().height) + 1;
+    tags.style.setProperty('--tag-row-height', `${firstRowHeight}px`);
+    const overflows = tags.scrollHeight > firstRowHeight + 1;
     toggle.hidden = !overflows;
     if (!overflows) expanded = false;
     const collapsed = overflows && !expanded;
     filter.classList.toggle('is-collapsed', collapsed);
     toggle.setAttribute('aria-expanded', String(overflows && expanded));
-    if (label) label.textContent = expanded ? '收起标签' : '展开标签';
+    if (label) label.textContent = filter.dataset.locale === 'en' ? (expanded ? 'Hide tags' : 'Show tags') : (expanded ? '收起标签' : '展开标签');
     for (const link of tags.querySelectorAll<HTMLAnchorElement>('a')) {
       const hidden = collapsed && link.offsetTop > firstTag.offsetTop;
       if (hidden) {

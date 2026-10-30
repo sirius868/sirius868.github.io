@@ -37,6 +37,8 @@ draft: false
 
 `slug` 使用小写字母、数字和连字符，并保持唯一。设置 `draft: true` 可让内容不出现在公开页面。笔记可以省略 `tags`。
 
+英文界面位于 `/en/`。文章与笔记的英文稿放在 `src/content/translations/`，元信息填写 `type`（`blog` 或 `notes`）、与中文内容一致的 `slug`、英文 `title` 和 `description`。没有英文稿的内容会在英文界面保留中文并标注原文语言。
+
 ## 部署
 
 推送到 `main` 后，GitHub Actions 会自动构建并发布到 GitHub Pages。工作流位于 `.github/workflows/deploy-pages.yml`；站点信息可在 `src/site.config.ts` 中调整。
