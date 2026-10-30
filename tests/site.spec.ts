@@ -98,7 +98,18 @@ test('search groups published articles and notes without indexing the about page
 test('projects, bilingual search material, and browser favicon are connected', async ({ page, request }) => {
   await page.goto('/projects/');
   await expect(page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '项目' })).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('heading', { name: 'Blog' })).toBeVisible();
+  await expect(page.locator('[data-deck-card][data-state="front"]')).toContainText('Blog');
+  await page.getByRole('button', { name: '下一个项目' }).click();
+  await expect(page.locator('[data-deck-card][data-state="front"]')).toContainText('WhaleMall');
+  await expect(page.locator('[data-deck-card][data-state="front"]').getByRole('link', { name: '查看源码' })).toHaveCount(0);
+  await page.locator('[data-deck-card][data-state="front"]').getByRole('link', { name: '查看项目' }).click();
+  await expect(page).toHaveURL(/\/projects\/whalemall\/$/);
+  await expect(page.getByRole('heading', { name: 'WhaleMall' })).toBeVisible();
+  await expect(page.locator('.project-detail a[href*="github.com"]')).toHaveCount(0);
+  await page.goto('/projects/');
+  await page.getByRole('button', { name: '下一个项目' }).click();
+  await page.getByRole('button', { name: '01Blog' }).click();
+  await expect(page.locator('[data-deck-card][data-state="front"]')).toContainText('Blog');
   await page.getByRole('link', { name: '查看项目' }).click();
   await expect(page).toHaveURL(/\/projects\/blog-site\/$/);
   await expect(page.getByRole('heading', { name: '想解决什么' })).toBeVisible();
