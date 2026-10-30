@@ -12,7 +12,8 @@ const { tags, currentPage = false } = Astro.props;
     {tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>)}
   </nav>
   <button class="tag-filter-toggle" type="button" aria-controls="article-tag-filter" aria-expanded="false" hidden>
-    <span>展开标签</span><span class="tag-filter-chevron" aria-hidden="true">⌄</span>
+    <span>展开标签</span>
+    <svg class="tag-filter-chevron" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" /></svg>
   </button>
 </div>}
 
@@ -63,11 +64,11 @@ const { tags, currentPage = false } = Astro.props;
   .tag-filter{display:flex;align-items:flex-start;gap:10px;margin:24px 0}
   .tag-filter .pill-row{flex:1;min-width:0;margin:0}
   .tag-filter.is-collapsed .pill-row{max-height:var(--tag-row-height);overflow:hidden}
-  .tag-filter-toggle{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:.85rem;font-weight:600;white-space:nowrap;transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .2s ease}
+  .tag-filter-toggle{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:.85rem;font-weight:600;white-space:nowrap;transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .2s ease}
   .tag-filter-toggle[hidden]{display:none}
   .tag-filter-toggle:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
   .tag-filter-toggle:active{transform:translateY(0) scale(.97)}
-  .tag-filter-chevron{display:inline-block;font-size:1.1em;line-height:1;transition:transform .2s ease}
+  .tag-filter-chevron{display:block;flex:none;transition:transform .24s cubic-bezier(.2,.8,.2,1)}
   .tag-filter-toggle[aria-expanded=true] .tag-filter-chevron{transform:rotate(180deg)}
   @media(max-width:360px){.tag-filter{gap:6px}.tag-filter-toggle{padding-inline:9px;font-size:.78rem}}
   @media(prefers-reduced-motion:reduce){.tag-filter-toggle,.tag-filter-chevron{transition:none}.tag-filter-toggle:hover,.tag-filter-toggle:active{transform:none}}
