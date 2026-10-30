@@ -73,17 +73,23 @@ draft: false
 
 ## 作者资料与部署
 
-编辑 `src/site.config.ts` 中的站点名称、简介、关于页文案、经历与外部链接。未配置的经历或链接栏目自动隐藏。正式域名通过 `PUBLIC_SITE_URL` 提供，它会用于 canonical、RSS 和站点地图中的绝对地址。例如在部署平台设置 `PUBLIC_SITE_URL=https://your-domain.example`，再执行 `npm run build`。不要把这个例子地址直接用于正式站点。
+编辑 `src/site.config.ts` 中的站点名称、简介、关于页文案、经历与外部链接。未配置的经历或链接栏目自动隐藏。正式站点地址通过 `PUBLIC_SITE_URL` 提供，它会用于 canonical、RSS 和站点地图中的绝对地址。GitHub Pages 工作流已设置为 `https://sirius868.github.io/`。
 
-任何能托管静态文件的平台都可以部署 `dist/`。部署配置为：构建命令 `npm run build`，输出目录 `dist`。首次部署和每次改动域名后，检查实际页面的 canonical、`rss.xml` 与 `sitemap-index.xml`。
+### GitHub Pages
+
+网站源代码位于 `sirius868/sirius868.github.io` 仓库。首次发布时，在仓库的 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**。以后每次推送到 `main`，`.github/workflows/deploy-pages.yml` 都会检查并构建网站，再发布 `dist/`。也可以在 **Actions → Deploy GitHub Pages → Run workflow** 手动重跑。
+
+部署完成后打开 `https://sirius868.github.io/`。若是首次开通 Pages，GitHub 可能需要几分钟才能显示网站。发布新文章或笔记时，提交并推送内容文件即可触发更新。首次部署和每次改动域名后，检查页面的 canonical、`rss.xml` 与 `sitemap-index.xml`。
+
+其他静态平台也可以部署 `dist/`：构建命令 `npm run build`，输出目录 `dist`，并将 `PUBLIC_SITE_URL` 设置为实际站点地址。
 
 ### 发布前检查清单
 
 - [ ] `src/site.config.ts` 中的 `yh`、`yhblog`、简介与关于页文字符合你的最终资料；如需经历或社交链接，填写真实信息并逐个打开检查。
 - [ ] 确认 `public/images/yh-logo.png` 和 `public/favicon.png` 是要发布的标识版本。
 - [ ] 决定是否保留演示文章；当前选择是保留为可运行演示，正式展示前可替换为自己的文章。
-- [ ] 在部署环境设置你拥有的正式域名 `PUBLIC_SITE_URL`，确保生成产物中不含 `localhost:4321` 或示例域名。
+- [ ] GitHub Pages 的 Source 选择 GitHub Actions；确认构建产物中不含 `localhost:4321`。
 - [ ] 运行 `npm run check`、`npm run build` 和 `npm run test:e2e`；抽查首页、文章分页、标签、详情、关于、搜索与主题切换。
 - [ ] 检查 `dist/search-index.json`、`dist/rss.xml` 和站点地图没有草稿内容，文章链接均使用正式域名。
 
-当前没有提供正式域名或社交链接；在这些值配置前，构建产物适合本地预览，发布检查清单中的域名项不会通过。
+当前没有提供自定义域名或社交链接；网站使用 GitHub Pages 提供的 `sirius868.github.io` 地址。
