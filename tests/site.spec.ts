@@ -41,9 +41,12 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await expect(page.locator('pre')).toBeVisible();
   expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
   await page.goto('/about/');
-  await expect(page.getByRole('heading', { name: '这里写些什么' })).toBeVisible();
-  await expect(page.getByText('你好，我是 yh。')).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '经历' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '你好，我是 yh。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '教育经历' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '华南师范大学' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '华南师范大学校徽' })).toBeVisible();
+  await expect(page.getByText('2024–2028')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '经历', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '选择主题' }).click();
   await page.getByRole('menuitemradio', { name: '深色' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
