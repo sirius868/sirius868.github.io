@@ -1,10 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="搜索" description="在 yhblog 的已发布文章中搜索关键词。" section="search">
-  <section class="page-head"><div class="eyebrow">FIND SOMETHING INTERESTING</div><h1>搜索<span style="color:var(--accent)">.</span></h1><p>输入一个词，看看它会带你去哪里。</p></section>
-  <form class="search-form liquid-search" id="search-form" action="/search/" method="get" role="search"><input class="search-input" id="query" name="q" type="search" placeholder="搜索文章、话题或关键词" aria-label="搜索文章" autocomplete="off" /><button class="button glass-search-button" type="submit"><span>搜索</span><span aria-hidden="true">↗</span></button></form>
-  <p id="search-status" class="search-status" role="status">输入关键词，开始探索文章。</p>
+<BaseLayout title="搜索" description="搜索已发布的文章和笔记。" section="search">
+  <section class="page-head"><div class="eyebrow">FIND SOMETHING INTERESTING</div><h1>搜索<span style="color:var(--accent)">.</span></h1><p>在文章和笔记中查找感兴趣的内容。</p></section>
+  <form class="search-form liquid-search" id="search-form" action="/search/" method="get" role="search"><input class="search-input" id="query" name="q" type="search" placeholder="搜索文章或笔记" aria-label="搜索文章和笔记" autocomplete="off" /><button class="button glass-search-button" type="submit"><span>搜索</span><span aria-hidden="true">↗</span></button></form>
+  <p id="search-status" class="search-status" role="status">输入关键词，搜索文章和笔记。</p>
   <div id="search-results" class="search-results" aria-live="polite"></div>
 </BaseLayout>
 <style>
@@ -26,10 +26,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   @media(max-width:700px){.liquid-search{flex-direction:row;gap:5px;padding:5px;border-radius:16px}.liquid-search .search-input{min-height:48px;padding:10px 11px;font-size:.92rem}.liquid-search .glass-search-button{width:auto;min-width:74px;min-height:46px;padding:9px 11px;gap:5px;font-size:.88rem}}
   @media(max-width:360px){.liquid-search .glass-search-button{min-width:65px;padding-inline:8px}}
   @media(prefers-reduced-motion:reduce){.liquid-search,.liquid-search .glass-search-button,.liquid-search .glass-search-button::before{transition:none}.liquid-search .glass-search-button:hover,.liquid-search .glass-search-button:active{transform:none}.liquid-search .glass-search-button:hover::before{transform:translateX(-110%) rotate(8deg)}}
-  .search-status{color:var(--muted);margin:20px 0}.search-results{display:grid;gap:12px}.search-results :global(.search-result){display:block;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.search-results :global(.search-result:hover){border-color:var(--accent)}.search-results :global(.search-result h2){font-size:1.2rem;margin:0 0 6px}.search-results :global(.search-result p){color:var(--muted);margin:0}.search-results :global(.search-result small){display:block;color:var(--accent);margin-top:12px}
+  .search-status{color:var(--muted);margin:20px 0}.search-results{display:grid;gap:30px}.search-results :global(.search-group h2){font-size:1.15rem;margin:0 0 12px}.search-results :global(.search-group h2 span){color:var(--muted);font-size:.85rem;font-weight:500}.search-results :global(.search-group-list){display:grid;gap:12px}.search-results :global(.search-result){display:block;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.search-results :global(.search-result:hover){border-color:var(--accent)}.search-results :global(.search-result h3){font-size:1.2rem;margin:0 0 6px}.search-results :global(.search-result p){color:var(--muted);margin:0}.search-results :global(.search-result small){display:block;color:var(--accent);margin-top:12px}
 </style>
 <script>
-  import { searchArticles, type SearchItem } from '../lib/search';
+  import { searchContent, type SearchItem } from '../lib/search';
   const searchForm = document.querySelector<HTMLElement>('.liquid-search');
   if (searchForm && matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches) {
     searchForm.addEventListener('pointermove', (event) => {
@@ -48,20 +48,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     fetch('/search-index.json')
       .then((response) => { if (!response.ok) throw new Error('search index unavailable'); return response.json() as Promise<SearchItem[]>; })
       .then((items) => {
-        const matches = searchArticles(items, query);
-        status.textContent = matches.length ? `找到 ${matches.length} 篇与「${query}」相关的文章。` : `没有找到与「${query}」相关的文章，请换个词试试。`;
-        for (const item of matches) {
-          const link = document.createElement('a');
-          link.className = 'search-result';
-          link.href = item.url;
-          const heading = document.createElement('h2');
-          heading.textContent = item.title;
-          const description = document.createElement('p');
-          description.textContent = item.description;
-          const date = document.createElement('small');
-          date.textContent = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(item.date));
-          link.append(heading, description, date);
-          results.append(link);
+        const matches = searchContent(items, query);
+        status.textContent = matches.length ? `找到 ${matches.length} 条与「${query}」相关的内容。` : `没有找到与「${query}」相关的内容，请换个词试试。`;
+        for (const [type, title] of [['article', '文章'], ['note', '笔记']] as const) {
+          const groupItems = matches.filter((item) => item.type === type);
+          if (!groupItems.length) continue;
+          const group = document.createElement('section');
+          group.className = 'search-group';
+          group.setAttribute('aria-label', title);
+          const groupHeading = document.createElement('h2');
+          groupHeading.textContent = `${title} `;
+          const count = document.createElement('span');
+          count.textContent = `${groupItems.length} 条`;
+          groupHeading.append(count);
+          const list = document.createElement('div');
+          list.className = 'search-group-list';
+          for (const item of groupItems) {
+            const link = document.createElement('a');
+            link.className = 'search-result';
+            link.href = item.url;
+            const heading = document.createElement('h3');
+            heading.textContent = item.title;
+            const description = document.createElement('p');
+            description.textContent = item.description;
+            const date = document.createElement('small');
+            date.textContent = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(item.date));
+            link.append(heading, description, date);
+            list.append(link);
+          }
+          group.append(groupHeading, list);
+          results.append(group);
         }
       })
       .catch(() => { status.textContent = '搜索暂时不可用，请稍后重试。'; });

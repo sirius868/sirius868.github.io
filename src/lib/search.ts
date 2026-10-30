@@ -1,6 +1,8 @@
 import type { Article } from './articles';
+import type { Note } from './notes';
 
 export type SearchItem = {
+  type: 'article' | 'note';
   title: string;
   description: string;
   date: string;
@@ -12,7 +14,7 @@ export type SearchItem = {
 export function stripMarkdown(source: string): string {
   return source
     .replace(/^---[\s\S]*?---\s*/m, '')
-    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/```[^\n]*\n?/g, ' ')
     .replace(/<[^>]*>/g, ' ')
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
@@ -21,8 +23,9 @@ export function stripMarkdown(source: string): string {
     .trim();
 }
 
-export function searchItem(article: Article, body: string): SearchItem {
+export function articleSearchItem(article: Article, body: string): SearchItem {
   return {
+    type: 'article',
     title: article.data.title,
     description: article.data.description,
     date: article.data.pubDate.toISOString(),
@@ -32,7 +35,19 @@ export function searchItem(article: Article, body: string): SearchItem {
   };
 }
 
-export function searchArticles(items: SearchItem[], rawQuery: string): SearchItem[] {
+export function noteSearchItem(note: Note, body: string): SearchItem {
+  return {
+    type: 'note',
+    title: note.data.title,
+    description: note.data.description,
+    date: note.data.pubDate.toISOString(),
+    tags: [],
+    url: `/notes/${note.data.slug}/`,
+    body: stripMarkdown(body)
+  };
+}
+
+export function searchContent(items: SearchItem[], rawQuery: string): SearchItem[] {
   const query = rawQuery.trim().toLocaleLowerCase();
   if (!query) return [];
   return items.filter((item) =>

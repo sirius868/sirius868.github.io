@@ -42,6 +42,7 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   expect(await page.evaluate(() => document.body.scrollWidth <= window.innerWidth)).toBe(true);
   await page.goto('/about/');
   await expect(page.getByRole('heading', { name: '这里写些什么' })).toBeVisible();
+  await expect(page.getByText('你好，我是 yh。')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '经历' })).toHaveCount(0);
   await page.getByRole('button', { name: '选择主题' }).click();
   await page.getByRole('menuitemradio', { name: '深色' }).click();
@@ -49,7 +50,7 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.goto('/search/?q=好奇心');
-  await expect(page.getByText(/找到 .* 篇/)).toBeVisible();
+  await expect(page.getByText(/找到 .* 条/)).toBeVisible();
   await expect(page.getByRole('link', { name: /阅读时，给好奇心留一条岔路/ })).toBeVisible();
   await page.goto('/search/?q=隐秘茉莉专用测试词');
   await expect(page.getByText(/没有找到/)).toBeVisible();
@@ -58,9 +59,27 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await page.goto('/search/?q=MARKDOWN');
   await expect(page.getByRole('link', { name: /喜欢那些安静的工具/ })).toBeVisible();
   await page.goto('/search/');
-  await expect(page.getByText('输入关键词，开始探索文章。')).toBeVisible();
+  await expect(page.getByText('输入关键词，搜索文章和笔记。')).toBeVisible();
   await page.locator('.mobile-menu summary').click();
   await expect(page.getByRole('navigation', { name: '移动端主导航' }).getByRole('link', { name: '首页' })).toBeVisible();
+});
+
+test('search groups published articles and notes without indexing the about page', async ({ page, request }) => {
+  const response = await request.get('/search-index.json');
+  expect(response.ok()).toBe(true);
+  const items = await response.json() as { type: string; url: string }[];
+  expect(items.some((item) => item.type === 'article')).toBe(true);
+  expect(items.some((item) => item.type === 'note')).toBe(true);
+  expect(items.some((item) => item.url === '/about/' || item.url.includes('private-'))).toBe(false);
+
+  await page.goto('/search/?q=问题');
+  await expect(page.getByRole('region', { name: '文章' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '笔记' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '笔记' }).getByRole('link', { name: /为什么还要写下来/ })).toBeVisible();
+  await page.goto('/search/?q=searchDocs');
+  await expect(page.getByRole('region', { name: '文章' }).getByRole('link', { name: /AI Agent 的工程结构/ })).toBeVisible();
+  await page.goto('/search/?q=一点帮助');
+  await expect(page.getByText(/没有找到/)).toBeVisible();
 });
 
 test('keyboard navigation and reduced motion remain usable', async ({ page }) => {

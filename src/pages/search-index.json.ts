@@ -1,11 +1,13 @@
 import type { APIRoute } from 'astro';
 import { getPublishedArticles } from '../lib/articles';
-import { searchItem } from '../lib/search';
+import { getPublishedNotes } from '../lib/notes';
+import { articleSearchItem, noteSearchItem } from '../lib/search';
 
 export const GET: APIRoute = async () => {
-  const articles = await getPublishedArticles();
-  const items = await Promise.all(articles.map(async (article) => {
-    return searchItem(article, article.body || '');
-  }));
+  const [articles, notes] = await Promise.all([getPublishedArticles(), getPublishedNotes()]);
+  const items = [
+    ...articles.map((article) => articleSearchItem(article, article.body || '')),
+    ...notes.map((note) => noteSearchItem(note, note.body || ''))
+  ];
   return new Response(JSON.stringify(items), { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
 };
