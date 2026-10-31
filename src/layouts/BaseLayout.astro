@@ -94,7 +94,7 @@ const nav = [
           </details>
         </div>
       </header>
-      <main id="main"><slot /></main>
+      <main id="main" data-section={section}><slot /></main>
       <footer class="site-footer">
         <div><strong>{site.name}</strong><span>{t.footer}</span></div>
         <div class="footer-links"><a href={localizedPath('/blog/', locale)}>{t.blog}</a><a href={localizedPath('/notes/', locale)}>{t.notes}</a><a href={localizedPath('/projects/', locale)}>{t.projects}</a><a href={localizedPath('/about/', locale)}>{t.about}</a></div>
