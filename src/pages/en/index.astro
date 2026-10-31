@@ -1,18 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import EnglishArticleCard from '../../components/EnglishArticleCard.astro';
-import { getPublishedArticles } from '../../lib/articles';
-import { getEnglishTranslations } from '../../lib/translations';
+import HomePage from '../../components/HomePage.astro';
 import { site } from '../../site.config';
-const articles = await getPublishedArticles();
-const translations = await getEnglishTranslations();
-const featured = articles.filter((article) => article.data.featured).slice(0, 2);
-const featuredSlugs = new Set(featured.map((article) => article.data.slug));
-const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug)).slice(0, 4);
 ---
-<BaseLayout title={site.name} description="Notes on AI agents, developer tools, and engineering practice." locale="en" section="home">
-  <section class="en-page-head"><div class="eyebrow">NOTES ON BUILDING THINGS</div><h1>Ideas, code, and the work between.</h1><p>I write about AI agents, developer tools, and practical engineering. When a problem is worth exploring, I try it out and share what I learn.</p><div class="hero-actions"><a class="button glow-button" href="/en/blog/">Read articles ↗</a><a class="button button-outline" href="/en/about/">About this blog</a></div></section>
-  {featured.length > 0 && <section><div class="section-head"><h2>Featured articles</h2><a href="/en/blog/">All articles ↗</a></div><div class="article-grid">{featured.map((article) => <EnglishArticleCard article={article} translation={translations.get(`blog:${article.data.slug}`)} />)}</div></section>}
-  {recent.length > 0 && <section><div class="section-head"><h2>Recent articles</h2><a href="/en/blog/">Explore more ↗</a></div><div class="article-grid">{recent.map((article) => <EnglishArticleCard article={article} translation={translations.get(`blog:${article.data.slug}`)} />)}</div></section>}
+<BaseLayout title={site.name} description="Notes on AI agents, developer tools, and engineering practice." locale="en" section="home" homeHeaderSync>
+  <HomePage locale="en" />
 </BaseLayout>
-<style>.hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:30px}</style>

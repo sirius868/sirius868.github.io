@@ -10,7 +10,7 @@ import { site } from '../site.config';
     <h2 id="education-heading">教育经历</h2>
     <div class="education-card">
       <div class="education-emblem"><img src={site.education.emblem} alt="华南师范大学校徽" width="66" height="72" loading="lazy" /></div>
-      <div class="education-detail"><span class="education-degree">{site.education.degree}</span><h3><a href={site.education.url} target="_blank" rel="noopener noreferrer">{site.education.school}<span aria-hidden="true"> ↗</span></a></h3><p>{site.education.period}</p></div>
+      <div class="education-detail"><h3><a href={site.education.url} target="_blank" rel="noopener noreferrer">{site.education.school}<span aria-hidden="true"> ↗</span></a></h3><span class="education-degree">{site.education.degree}</span><p>{site.education.period}</p></div>
     </div>
   </section>
   {site.experience.length > 0 && <section class="about-section"><h2>经历</h2><div class="experience-list">{site.experience.map((item) => <div class="experience-item"><span>{item.period}</span><div><strong>{item.title}</strong><p>{item.detail}</p></div></div>)}</div></section>}

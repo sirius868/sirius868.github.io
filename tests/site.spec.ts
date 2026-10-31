@@ -38,6 +38,7 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.locator('[data-scroll-cue]')).toHaveAttribute('aria-label', '向下查看下一板块');
   await expect(page.locator('.hero-art')).toHaveCSS('border-width', '0px');
   await expect(page.locator('.hero-art')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('.hero-art')).toHaveCSS('translate', '0px -24px');
   const panelHeights = await page.locator('.home-panel').evaluateAll((panels) => panels.map((panel) => panel.getBoundingClientRect().height));
   expect(Math.max(...panelHeights) - Math.min(...panelHeights)).toBeLessThan(1);
   await expect(page.locator('.site-header')).toHaveAttribute('data-home-header-sync', 'true');
@@ -50,6 +51,14 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await expect(page.locator('#featured-heading')).toBeInViewport();
   await expect(page.locator('.home-contrast-panel').first()).toHaveCSS('color', 'rgb(245, 245, 243)');
+  const beforeThemeMenu = await page.evaluate(() => window.scrollY);
+  await page.locator('#theme-trigger').dispatchEvent('click');
+  await expect(page.locator('#theme-trigger')).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#theme-trigger')).toHaveCSS('background-color', 'rgb(36, 36, 38)');
+  await expect(page.locator('#theme-trigger')).toHaveCSS('color', 'rgb(245, 245, 243)');
+  expect(await page.evaluate(() => window.scrollY)).toBe(beforeThemeMenu);
+  await page.keyboard.press('Escape');
+  await page.locator('#theme-trigger').evaluate((element) => (element as HTMLElement).blur());
   await expect(page.locator('.desktop-nav a[aria-current=page]')).toHaveCSS('background-image', /rgba\(100, 100, 105, 0\.62\)/);
   await expect(page.locator('.desktop-nav a').nth(1)).toHaveCSS('background-image', /rgba\(72, 72, 76, 0\.52\)/);
   await page.waitForTimeout(750);
@@ -108,6 +117,8 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await expect(page.getByRole('heading', { name: '你好，我是 yh。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '教育经历' })).toBeVisible();
   await expect(page.getByRole('link', { name: '华南师范大学' })).toBeVisible();
+  await expect(page.getByText('工学学士-软件工程')).toBeVisible();
+  expect(await page.locator('.education-detail').evaluate((element) => [...element.children].map((child) => child.textContent?.trim()))).toEqual(['华南师范大学 ↗', '工学学士-软件工程', '2024–2028']);
   await expect(page.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/sirius868');
   await expect(page.getByRole('link', { name: /GitHub/ }).locator('svg')).toBeVisible();
   await expect(page.getByRole('img', { name: '华南师范大学校徽' })).toBeVisible();
@@ -225,6 +236,12 @@ test('English interface keeps navigation local and labels untranslated content',
   await page.getByRole('link', { name: 'Switch to English' }).click();
   await expect(page).toHaveURL(/\/en\/$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('.home-panel')).toHaveCount(4);
+  await expect(page.getByRole('button', { name: 'View next section' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Ideas, code/ })).toBeVisible();
+  await page.getByRole('button', { name: 'View next section' }).dispatchEvent('click');
+  await expect(page.getByRole('heading', { name: 'Featured articles' })).toBeInViewport();
+  await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Articles' })).toBeVisible();
   await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Articles' }).click();
   await expect(page).toHaveURL(/\/en\/blog\/$/);
@@ -284,16 +301,32 @@ test('hero light tracks pointer and header compacts while scrolling', async ({ p
   await button.hover({ position: { x: 95, y: 12 } });
   const rightX = await button.evaluate((element) => element.style.getPropertyValue('--glow-x'));
   expect(parseFloat(rightX)).toBeGreaterThan(parseFloat(leftX));
+  await expect(button).toHaveClass(/is-glowing/);
+  await page.mouse.move(0, 0);
+  await expect(button).not.toHaveClass(/is-glowing/);
+  expect(await button.evaluate((element) => element.style.getPropertyValue('--glow-x'))).toBe(rightX);
 
   const header = page.locator('.site-header');
-  await page.evaluate(() => scrollTo(0, 300));
+  await page.mouse.wheel(0, 460);
   await expect(header).toHaveClass(/is-scrolled/);
-  await page.evaluate(() => scrollTo(0, 900));
   await expect(header).toHaveClass(/is-hidden/);
-  await page.evaluate(() => scrollTo(0, 400));
+  await page.waitForTimeout(750);
+  await page.mouse.wheel(0, -460);
   await expect(header).not.toHaveClass(/is-hidden/);
-  await page.evaluate(() => scrollTo(0, 0));
   await expect(header).not.toHaveClass(/is-scrolled/);
+});
+
+test('search light fades after pointer leaves in both languages', async ({ page }) => {
+  for (const path of ['/search/', '/en/search/']) {
+    await page.goto(path);
+    const form = page.locator('.liquid-search');
+    await form.hover({ position: { x: 25, y: 25 } });
+    await expect(form).toHaveClass(/is-glowing/);
+    const lightX = await form.evaluate((element) => element.style.getPropertyValue('--light-x'));
+    await page.mouse.move(0, 0);
+    await expect(form).not.toHaveClass(/is-glowing/);
+    expect(await form.evaluate((element) => element.style.getPropertyValue('--light-x'))).toBe(lightX);
+  }
 });
 
 test('theme menu supports keyboard navigation and dismissal', async ({ page }) => {

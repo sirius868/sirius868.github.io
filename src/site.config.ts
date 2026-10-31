@@ -10,7 +10,7 @@ export const site = {
   ],
   education: {
     school: '华南师范大学',
-    degree: '本科',
+    degree: '工学学士-软件工程',
     period: '2024–2028',
     emblem: '/images/scnu-emblem.png',
     url: 'https://www.scnu.edu.cn/'

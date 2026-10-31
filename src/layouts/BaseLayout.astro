@@ -121,14 +121,14 @@ const nav = [
         if (!themeMenu || !themeTrigger) return;
         themeMenu.hidden = true;
         themeTrigger.setAttribute('aria-expanded', 'false');
-        if (restoreFocus) themeTrigger.focus();
+        if (restoreFocus) themeTrigger.focus({ preventScroll: true });
       };
       themeTrigger?.addEventListener('click', () => {
         if (!themeMenu) return;
         const opening = themeMenu.hidden;
         themeMenu.hidden = !opening;
         themeTrigger.setAttribute('aria-expanded', String(opening));
-        if (opening) themeOptions.find((option) => option.dataset.themeOption === choice)?.focus();
+        if (opening) themeOptions.find((option) => option.dataset.themeOption === choice)?.focus({ preventScroll: true });
       });
       for (const option of themeOptions) option.addEventListener('click', () => {
         choice = option.dataset.themeOption || 'light';
