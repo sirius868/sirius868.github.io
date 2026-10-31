@@ -39,6 +39,8 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await expect(page.locator('#featured-heading')).toBeInViewport();
   await expect(page.locator('.home-contrast-panel').first()).toHaveCSS('color', 'rgb(245, 245, 243)');
+  await expect(page.locator('.desktop-nav a[aria-current=page]')).toHaveCSS('background-image', /rgba\(100, 100, 105, 0\.62\)/);
+  await expect(page.locator('.desktop-nav a').nth(1)).toHaveCSS('background-image', /rgba\(72, 72, 76, 0\.52\)/);
   await page.waitForTimeout(750);
   await page.mouse.wheel(0, 460);
   await expect(page.locator('#recent-heading')).toBeInViewport();
