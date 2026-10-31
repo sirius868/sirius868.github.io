@@ -2,7 +2,7 @@
 slug: whalemall
 title: WhaleMall
 description: 从普通订单到限时购，梳理库存预占、支付与取消竞争、Redis 名额控制和品牌详情缓存的工程边界。
-category: 电商后端
+category: 电商交易与限时购系统
 year: 2026
 stack: [Java, Spring Boot, MySQL, MyBatis-Plus, Redis, Lua, Caffeine, RabbitMQ]
 featured: false
