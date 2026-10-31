@@ -12,9 +12,10 @@ interface Props {
   alternatePath?: string;
   contentLanguage?: Locale;
   translated?: boolean;
+  homeHeaderSync?: boolean;
 }
 
-const { title, description, pathname = Astro.url.pathname, section, locale = 'zh', alternatePath, contentLanguage = locale, translated = true } = Astro.props;
+const { title, description, pathname = Astro.url.pathname, section, locale = 'zh', alternatePath, contentLanguage = locale, translated = true, homeHeaderSync = false } = Astro.props;
 const t = copy[locale];
 const fullTitle = title === site.name ? site.name : `${title} · ${site.name}`;
 const canonical = new URL(pathname, siteUrl).toString();
@@ -63,7 +64,7 @@ const nav = [
   <body>
     <a class="skip-link" href="#main">{t.skip}</a>
     <div class="site-shell">
-      <header class="site-header">
+      <header class="site-header" data-home-header-sync={homeHeaderSync ? 'true' : undefined}>
         <a class="brand" href={localizedPath('/', locale)} aria-label={`blog ${t.home}`}>
           <img class="brand-logo" src="/images/yh-logo.png" alt="" width="42" height="38" />
           <span>blog</span>
@@ -152,6 +153,7 @@ const nav = [
 
       const header = document.querySelector<HTMLElement>('.site-header');
       const menu = document.querySelector<HTMLDetailsElement>('.mobile-menu');
+      const homeHeaderSync = header?.dataset.homeHeaderSync === 'true';
       let previousY = window.scrollY;
       let framePending = false;
       const updateHeader = () => {
@@ -161,9 +163,9 @@ const nav = [
         header.classList.toggle('is-scrolled', isScrolled);
         if (!isScrolled || menu?.open || header.contains(document.activeElement)) {
           header.classList.remove('is-hidden');
-        } else if (y > 180 && y - previousY > 5) {
+        } else if (y > 180 && y - previousY > (homeHeaderSync ? 1 : 5)) {
           header.classList.add('is-hidden');
-        } else if (previousY - y > 5) {
+        } else if (previousY - y > (homeHeaderSync ? 1 : 5)) {
           header.classList.remove('is-hidden');
         }
         previousY = y;

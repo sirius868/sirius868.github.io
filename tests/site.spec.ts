@@ -28,6 +28,25 @@ test('home, article flow and draft exclusion', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '这页走丢了.' })).toBeVisible();
 });
 
+test('home sections snap gently and keep header behavior scoped to home', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 850 });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: /来聊聊技术/ })).toBeVisible();
+  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'y');
+  await expect(page.locator('.home-panel')).toHaveCount(4);
+  await expect(page.locator('.site-header')).toHaveAttribute('data-home-header-sync', 'true');
+  await page.evaluate(() => window.scrollTo(0, 900));
+  await expect(page.locator('.site-header')).toHaveClass(/is-hidden/);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.locator('.site-header')).not.toHaveClass(/is-hidden/);
+  await page.goto('/blog/');
+  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none');
+  await expect(page.locator('.site-header')).not.toHaveAttribute('data-home-header-sync', 'true');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none');
+});
+
 test('tag, about, search and theme work on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('/blog/');

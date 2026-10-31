@@ -9,8 +9,9 @@ const featured = articles.filter((article) => article.data.featured).slice(0, 2)
 const featuredSlugs = new Set(featured.map((article) => article.data.slug));
 const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug)).slice(0, 4);
 ---
-<BaseLayout title={site.name} description={site.description} section="home">
-  <section class="hero">
+<BaseLayout title={site.name} description={site.description} section="home" homeHeaderSync>
+  <div class="home-scroll-flow">
+  <section class="hero home-panel" data-home-panel>
     <div class="hero-copy">
       <div class="eyebrow">NOTES ON BUILDING THINGS</div>
       <h1>你好，<br />来聊聊<em>技术</em><span class="hero-period">.</span></h1>
@@ -20,14 +21,29 @@ const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug
     <div class="hero-art" aria-hidden="true"><span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span><span class="art-disc"></span><span class="art-star star-one">✳</span><span class="art-star star-two">✳</span><span class="art-caption">IDEAS GROW HERE</span></div>
   </section>
   {articles.length === 0 ? <div class="empty-state">文章正在路上，欢迎稍后再来。</div> : <>
-    {featured.length > 0 && <section aria-labelledby="featured-heading"><div class="section-head"><div><div class="eyebrow">EDITOR'S PICK</div><h2 id="featured-heading">精选文章</h2></div><a href="/blog/">全部文章 ↗</a></div><div class="article-grid">{featured.map((article) => <ArticleCard article={article} />)}</div></section>}
-    {recent.length > 0 && <section aria-labelledby="recent-heading"><div class="section-head"><div><div class="eyebrow">LATEST STORIES</div><h2 id="recent-heading">最近写下</h2></div><a href="/blog/">浏览更多 ↗</a></div><div class="article-grid">{recent.map((article) => <ArticleCard article={article} />)}</div></section>}
+    {featured.length > 0 && <section class="home-panel home-content-panel" data-home-panel aria-labelledby="featured-heading"><div class="section-head"><div><div class="eyebrow">EDITOR'S PICK</div><h2 id="featured-heading">精选文章</h2></div><a href="/blog/">全部文章 ↗</a></div><div class="article-grid">{featured.map((article) => <ArticleCard article={article} />)}</div></section>}
+    {recent.length > 0 && <section class="home-panel home-content-panel" data-home-panel aria-labelledby="recent-heading"><div class="section-head"><div><div class="eyebrow">LATEST STORIES</div><h2 id="recent-heading">最近写下</h2></div><a href="/blog/">浏览更多 ↗</a></div><div class="article-grid">{recent.map((article) => <ArticleCard article={article} />)}</div></section>}
   </>}
-  <section class="closing"><div class="eyebrow">KEEP EXPLORING</div><h2>有些问题，<br />值得认真拆解。</h2><p>把实践中的思路和踩过的坑写下来，希望能帮你更快找到方向。</p><a href="/about/" class="text-link">更多关于这个博客 ↗</a></section>
+  <section class="closing home-panel" data-home-panel><div class="eyebrow">KEEP EXPLORING</div><h2>有些问题，<br />值得认真拆解。</h2><p>把实践中的思路和踩过的坑写下来，希望能帮你更快找到方向。</p><a href="/about/" class="text-link">更多关于这个博客 ↗</a></section>
+  </div>
 </BaseLayout>
 
 <style>
   .hero{min-height:520px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:50px 0 36px}.hero-copy h1{font-size:clamp(3.6rem,8vw,6.6rem);line-height:1.07;letter-spacing:-.085em;margin:23px 0}.hero-copy h1 em{font-style:normal;color:var(--accent)}.hero-period{color:#888}.hero-copy p{max-width:485px;color:var(--muted);font-size:1.06rem;line-height:1.95}.hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:30px}.hero-art{height:390px;position:relative;display:grid;place-items:center;border-radius:32px;background:radial-gradient(circle at 70% 25%,var(--accent-soft),transparent 45%),linear-gradient(145deg,var(--soft),var(--surface));overflow:hidden;border:1px solid var(--line)}.art-disc{width:190px;height:190px;border-radius:50%;background:linear-gradient(140deg,#bcbcbc,#3d3d3d);box-shadow:24px 28px 0 rgba(0,0,0,.1),inset -20px -20px 40px rgba(0,0,0,.15);transform:rotate(-25deg)}.art-orbit{position:absolute;border:1px solid var(--accent);border-radius:50%;opacity:.25;transform:rotate(-30deg)}.orbit-one{width:280px;height:370px}.orbit-two{width:380px;height:250px}.art-star{position:absolute;color:#999;font-size:2rem}.star-one{top:60px;left:70px}.star-two{bottom:60px;right:65px;font-size:1.2rem}.art-caption{position:absolute;left:25px;bottom:21px;color:var(--muted);font-size:.67rem;letter-spacing:.2em;font-weight:700}.closing{margin-top:90px;padding:55px 45px;border-radius:24px;background:var(--accent-soft)}.closing h2{font-size:clamp(2rem,4vw,3.2rem);line-height:1.3;letter-spacing:-.05em;margin:13px 0}.closing p{color:var(--muted);margin-bottom:16px}@media(max-width:700px){.hero{grid-template-columns:1fr;gap:20px;padding:50px 0 20px;min-height:0}.hero-art{height:260px}.art-disc{width:140px;height:140px}.hero-copy h1{font-size:3.7rem}.closing{padding:35px 25px;margin-top:65px}}@media(max-width:360px){.hero-copy h1{font-size:3.2rem}}
+</style>
+<style>
+  :global(html:has(.home-scroll-flow)){scroll-snap-type:y proximity;scroll-padding-top:84px}
+  .home-scroll-flow{position:relative}
+  .home-panel{position:relative;scroll-snap-align:start;scroll-margin-top:84px;isolation:isolate}
+  .home-content-panel{display:flex;flex-direction:column;justify-content:center;min-height:min(700px,calc(100svh - 86px));padding:50px 0 78px}
+  .home-content-panel .section-head{margin-top:0}
+  .home-content-panel::before,.closing::before{content:'';position:absolute;top:45px;left:-15px;width:2px;height:clamp(80px,12vh,150px);border-radius:999px;background:linear-gradient(to bottom,transparent,var(--ink),transparent);opacity:0;transform:translateY(35px);transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .8s ease}
+  :global(.home-motion-ready) .home-panel .section-head,:global(.home-motion-ready) .home-panel .article-grid,:global(.home-motion-ready) .closing>:not(:first-child){transition:opacity .72s ease,transform .85s cubic-bezier(.2,.7,.2,1),filter .85s ease}
+  :global(.home-motion-ready) .home-panel:not(.is-entered) .section-head,:global(.home-motion-ready) .home-panel:not(.is-entered) .article-grid,:global(.home-motion-ready) .closing:not(.is-entered)>:not(:first-child){opacity:.62;transform:translateY(24px) scale(.985);filter:blur(4px)}
+  :global(.home-motion-ready) .home-panel.is-entered::before{opacity:.8;transform:translateY(0)}
+  :global(.home-motion-ready) .home-panel.is-entered .article-grid{transition-delay:.1s}
+  @media(max-width:700px){:global(html:has(.home-scroll-flow)){scroll-padding-top:68px}.home-panel{scroll-margin-top:68px}.home-content-panel{min-height:0;padding:55px 0 64px}.home-content-panel::before,.closing::before{left:-8px}}
+  @media(prefers-reduced-motion:reduce){:global(html:has(.home-scroll-flow)){scroll-snap-type:none}.home-panel::before{display:none}:global(.home-motion-ready) .home-panel .section-head,:global(.home-motion-ready) .home-panel .article-grid,:global(.home-motion-ready) .closing>:not(:first-child){transition:none;opacity:1;transform:none;filter:none}}
 </style>
 <style>
   .orbit-one{animation:orbit-clockwise 32s linear infinite;transform-origin:center}
@@ -60,5 +76,16 @@ const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug
       glowButton.style.setProperty('--glow-x', '50%');
       glowButton.style.setProperty('--glow-y', '50%');
     });
+  }
+</script>
+<script>
+  const panels = [...document.querySelectorAll<HTMLElement>('[data-home-panel]')];
+  if (panels.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    panels[0].classList.add('is-entered');
+    document.documentElement.classList.add('home-motion-ready');
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) entry.target.classList.add('is-entered');
+    }, { threshold: .12, rootMargin: '0px 0px -8% 0px' });
+    panels.forEach((panel) => observer.observe(panel));
   }
 </script>
