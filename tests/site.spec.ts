@@ -36,11 +36,15 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.locator('.home-panel')).toHaveCount(4);
   await expect(page.locator('[data-scroll-cue]')).toBeVisible();
   await expect(page.locator('[data-scroll-cue]')).toHaveAttribute('aria-label', '向下查看下一板块');
+  await expect(page.locator('.hero-art')).toHaveCSS('border-width', '0px');
+  await expect(page.locator('.hero-art')).toHaveCSS('background-image', 'none');
   const panelHeights = await page.locator('.home-panel').evaluateAll((panels) => panels.map((panel) => panel.getBoundingClientRect().height));
   expect(Math.max(...panelHeights) - Math.min(...panelHeights)).toBeLessThan(1);
   await expect(page.locator('.site-header')).toHaveAttribute('data-home-header-sync', 'true');
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
   await page.mouse.wheel(0, 460);
+  await expect(page.locator('[data-scroll-cue]')).toHaveClass(/is-hidden/);
+  await expect(page.locator('[data-scroll-cue]')).toHaveAttribute('tabindex', '-1');
   await expect.poll(() => page.locator('#featured-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 92))).toBeLessThan(2);
   const featuredScrollY = await page.evaluate(() => window.scrollY);
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
@@ -59,6 +63,7 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   expect(Math.abs((await page.evaluate(() => window.scrollY)) - featuredScrollY)).toBeLessThan(2);
   await page.evaluate(() => window.scrollTo(0, 0));
   await expect(page.locator('.site-header')).not.toHaveClass(/is-hidden/);
+  await expect(page.locator('[data-scroll-cue]')).not.toHaveClass(/is-hidden/);
   await page.goto('/blog/');
   await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none');
   await expect(page.locator('.site-header')).not.toHaveAttribute('data-home-header-sync', 'true');
