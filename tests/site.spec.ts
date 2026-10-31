@@ -34,10 +34,15 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.getByRole('heading', { name: /来聊聊技术/ })).toBeVisible();
   await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'y mandatory');
   await expect(page.locator('.home-panel')).toHaveCount(4);
+  await expect(page.locator('[data-scroll-cue]')).toBeVisible();
+  await expect(page.locator('[data-scroll-cue]')).toHaveAttribute('aria-label', '向下查看下一板块');
   const panelHeights = await page.locator('.home-panel').evaluateAll((panels) => panels.map((panel) => panel.getBoundingClientRect().height));
   expect(Math.max(...panelHeights) - Math.min(...panelHeights)).toBeLessThan(1);
   await expect(page.locator('.site-header')).toHaveAttribute('data-home-header-sync', 'true');
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
   await page.mouse.wheel(0, 460);
+  await expect.poll(() => page.locator('#featured-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 92))).toBeLessThan(2);
+  const featuredScrollY = await page.evaluate(() => window.scrollY);
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await expect(page.locator('#featured-heading')).toBeInViewport();
   await expect(page.locator('.home-contrast-panel').first()).toHaveCSS('color', 'rgb(245, 245, 243)');
@@ -48,6 +53,10 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.locator('#recent-heading')).toBeInViewport();
   await expect(page.locator('html')).not.toHaveClass(/home-on-contrast/);
   await expect(page.locator('.site-header')).toHaveClass(/is-hidden/);
+  await page.waitForTimeout(750);
+  await page.mouse.wheel(0, -460);
+  await expect.poll(() => page.locator('#featured-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 92))).toBeLessThan(2);
+  expect(Math.abs((await page.evaluate(() => window.scrollY)) - featuredScrollY)).toBeLessThan(2);
   await page.evaluate(() => window.scrollTo(0, 0));
   await expect(page.locator('.site-header')).not.toHaveClass(/is-hidden/);
   await page.goto('/blog/');
@@ -64,11 +73,18 @@ test('home footer scrolls back to the closing section before recent posts', asyn
   await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await expect(page.locator('.site-footer')).toBeInViewport();
   await page.mouse.wheel(0, -460);
-  await expect.poll(() => page.locator('.closing').evaluate((element) => Math.abs(element.getBoundingClientRect().top - 84))).toBeLessThan(12);
+  await expect.poll(() => page.locator('.closing').evaluate((element) => Math.abs(element.getBoundingClientRect().top - 92))).toBeLessThan(12);
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await page.waitForTimeout(750);
   await page.mouse.wheel(0, -460);
-  await expect.poll(() => page.locator('#recent-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 84))).toBeLessThan(12);
+  await expect.poll(() => page.locator('#recent-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 92))).toBeLessThan(12);
+});
+
+test('home scroll cue opens the next section', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 850 });
+  await page.goto('/');
+  await page.locator('[data-scroll-cue]').dispatchEvent('click');
+  await expect.poll(() => page.locator('#featured-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 92))).toBeLessThan(2);
 });
 
 test('tag, about, search and theme work on a narrow viewport', async ({ page }) => {
@@ -87,7 +103,8 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await expect(page.getByRole('heading', { name: '你好，我是 yh。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '教育经历' })).toBeVisible();
   await expect(page.getByRole('link', { name: '华南师范大学' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'GitHub ↗' })).toHaveAttribute('href', 'https://github.com/sirius868');
+  await expect(page.getByRole('link', { name: /GitHub/ })).toHaveAttribute('href', 'https://github.com/sirius868');
+  await expect(page.getByRole('link', { name: /GitHub/ }).locator('svg')).toBeVisible();
   await expect(page.getByRole('img', { name: '华南师范大学校徽' })).toBeVisible();
   await expect(page.getByText('2024–2028')).toBeVisible();
   await expect(page.getByRole('heading', { name: '经历', exact: true })).toHaveCount(0);
