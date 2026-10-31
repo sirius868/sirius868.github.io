@@ -16,7 +16,7 @@ export const site = {
     url: 'https://www.scnu.edu.cn/'
   },
   experience: [] as { period: string; title: string; detail: string }[],
-  links: [] as { label: string; url: string }[]
+  links: [{ label: 'GitHub', url: 'https://github.com/sirius868' }] as { label: string; url: string }[]
 };
 
 export const siteUrl = import.meta.env.SITE || 'http://localhost:4321';

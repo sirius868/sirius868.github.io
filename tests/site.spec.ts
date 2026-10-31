@@ -34,6 +34,8 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.getByRole('heading', { name: /来聊聊技术/ })).toBeVisible();
   await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'y mandatory');
   await expect(page.locator('.home-panel')).toHaveCount(4);
+  const panelHeights = await page.locator('.home-panel').evaluateAll((panels) => panels.map((panel) => panel.getBoundingClientRect().height));
+  expect(Math.max(...panelHeights) - Math.min(...panelHeights)).toBeLessThan(1);
   await expect(page.locator('.site-header')).toHaveAttribute('data-home-header-sync', 'true');
   await page.mouse.wheel(0, 460);
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
@@ -62,11 +64,11 @@ test('home footer scrolls back to the closing section before recent posts', asyn
   await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await expect(page.locator('.site-footer')).toBeInViewport();
   await page.mouse.wheel(0, -460);
-  await expect(page.getByRole('heading', { name: /值得认真拆解/ })).toBeInViewport();
+  await expect.poll(() => page.locator('.closing').evaluate((element) => Math.abs(element.getBoundingClientRect().top - 84))).toBeLessThan(12);
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await page.waitForTimeout(750);
   await page.mouse.wheel(0, -460);
-  await expect(page.locator('#recent-heading')).toBeInViewport();
+  await expect.poll(() => page.locator('#recent-heading').evaluate((element) => Math.abs(element.closest('section')!.getBoundingClientRect().top - 84))).toBeLessThan(12);
 });
 
 test('tag, about, search and theme work on a narrow viewport', async ({ page }) => {
@@ -85,6 +87,7 @@ test('tag, about, search and theme work on a narrow viewport', async ({ page }) 
   await expect(page.getByRole('heading', { name: '你好，我是 yh。' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '教育经历' })).toBeVisible();
   await expect(page.getByRole('link', { name: '华南师范大学' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'GitHub ↗' })).toHaveAttribute('href', 'https://github.com/sirius868');
   await expect(page.getByRole('img', { name: '华南师范大学校徽' })).toBeVisible();
   await expect(page.getByText('2024–2028')).toBeVisible();
   await expect(page.getByRole('heading', { name: '经历', exact: true })).toHaveCount(0);
