@@ -97,19 +97,22 @@ const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug
 <script>
   const panels = [...document.querySelectorAll<HTMLElement>('[data-home-panel]')];
   if (panels.length) {
+    const footer = document.querySelector<HTMLElement>('.site-footer');
+    const stops = footer ? [...panels, footer] : panels;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let active = 0;
     let scrollFrame = 0;
     const updatePanels = () => {
       scrollFrame = 0;
       const marker = window.innerHeight * .44;
-      const found = panels.findIndex((panel) => {
+      const found = stops.findIndex((panel) => {
         const rect = panel.getBoundingClientRect();
         return rect.top <= marker && rect.bottom > marker;
       });
       if (found >= 0) active = found;
+      else if (footer && footer.getBoundingClientRect().top <= marker) active = panels.length;
       panels.forEach((panel, index) => panel.classList.toggle('is-entered', index === active));
-      document.documentElement.classList.toggle('home-on-contrast', Boolean(panels[active]?.hasAttribute('data-home-contrast') && found >= 0));
+      document.documentElement.classList.toggle('home-on-contrast', Boolean(panels[active]?.hasAttribute('data-home-contrast')));
     };
     updatePanels();
     if (!reducedMotion.matches) document.documentElement.classList.add('home-motion-ready');
@@ -127,14 +130,16 @@ const recent = articles.filter((article) => !featuredSlugs.has(article.data.slug
       const now = performance.now();
       const freshGesture = now - lastWheel > 230;
       lastWheel = now;
-      const panel = panels[active];
+      const panel = stops[active];
       const next = active + Math.sign(event.deltaY);
       if (!panel || panel.getBoundingClientRect().height > window.innerHeight + 10) return;
-      if (next < 0 || next >= panels.length) return;
+      if (next < 0 || next >= stops.length) return;
       event.preventDefault();
       if (!freshGesture || now < wheelLockedUntil) return;
       wheelLockedUntil = now + 720;
-      const top = window.scrollY + panels[next].getBoundingClientRect().top - 84;
+      const top = next === panels.length
+        ? document.documentElement.scrollHeight - window.innerHeight
+        : window.scrollY + stops[next].getBoundingClientRect().top - 84;
       window.scrollTo({ top, behavior: 'smooth' });
     }, { passive: false });
   }

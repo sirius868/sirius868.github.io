@@ -54,6 +54,19 @@ test('home wheel advances one section and keeps header behavior scoped to home',
   await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none');
 });
 
+test('home footer scrolls back to the closing section before recent posts', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 850 });
+  await page.goto('/');
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await expect(page.locator('.site-footer')).toBeInViewport();
+  await page.mouse.wheel(0, -460);
+  await expect(page.getByRole('heading', { name: /值得认真拆解/ })).toBeInViewport();
+  await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
+  await page.waitForTimeout(750);
+  await page.mouse.wheel(0, -460);
+  await expect(page.locator('#recent-heading')).toBeInViewport();
+});
+
 test('tag, about, search and theme work on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('/blog/');
