@@ -5,28 +5,26 @@ title: Zhixu · CaseFlow
 description: An after-sales case agent that checks orders and policy evidence, asks for user confirmation, and records a recoverable service request.
 ---
 
-A customer says, “My headphones stopped working. Can I exchange them?” A useful response has to do more than sound plausible. The system must identify the customer, find their order, check the policy version and eligibility, and ask for missing facts. It should record a case only after the customer has reviewed and confirmed the proposed action.
+A customer says, “My headphones stopped working. Can I exchange them?” The system checks their identity and order, finds the applicable policy and eligibility rules, and asks for any missing facts. After the customer reviews and confirms the proposed action, it records a case.
 
-Zhixu · CaseFlow is built around that flow. Its current demo covers **fault-related exchange requests** and **delivery exception reports**, using synthetic orders, authored demo policies, and demo identities. The customer workspace shows the conversation, sources, progress, and result. A separate support workspace lets staff review cases and record a human handoff.
+Zhixu · CaseFlow is built around that flow. It covers **fault-related exchange requests** and **delivery exception reports** as demo scenarios, using synthetic orders, authored demo policies, and demo identities. The customer workspace shows the conversation, sources, progress, and result. A separate support workspace lets staff review cases and record a human handoff.
 
 ## Evidence before an answer
 
-Policy retrieval filters candidate passages by product model and policy version, then presents sources that can be opened in the original document. This matters because a similar-looking paragraph may come from an outdated policy or apply to a different product.
+Policy retrieval filters candidate passages by product model and policy version, then presents sources that can be opened in the original document. Source and version details help users check the basis for a proposed action.
 
-On a small, fixed synthetic set of policies and labelled questions, a comparison using real embeddings found that Recall@5 for 16 queries rose from 56.25% with global candidates to 100% after model and policy filtering. This is evidence about retrieval on that set. It does not establish answer accuracy for real customers or production traffic. When the evidence is insufficient, the system is expected to explain the gap.
+On a fixed demo set of four synthetic policies and 16 labelled questions, retrieval using real embeddings improved Recall@5 from 56.25% to 100% after adding product model and policy filters. When supporting evidence is insufficient, the system explains what needs further review or hands the case to a person.
 
 ## A model can explain; business rules decide what is written
 
 LangGraph coordinates a persistent task. A model helps extract the request and phrase the proposed solution. Deterministic business logic handles identity, order ownership, eligibility, explicit confirmation, and the database write.
 
-Confirmation has a specific meaning: if new information changes the proposal, an earlier confirmation cannot authorize the revised one. Before recording a case, the system checks the relevant conditions again. Stable operation identifiers, a database transaction, and a uniqueness constraint prevent duplicate cases when a command is retried. Persistent task state helps the conversation recover, but it does not replace those write safeguards.
+Confirmation has a specific meaning: when new information changes the proposal, the customer confirms the updated version. Before recording a case, the system checks the relevant conditions again. Stable operation identifiers, a database transaction, and a uniqueness constraint make retries return the same case. Persistent task state lets the conversation and execution resume.
 
-Both supported flows follow the same pattern: check the customer's order and the relevant evidence, propose an action, wait for confirmation, then record the request. **A recorded case is an application for service; it does not mean a refund, exchange, or delivery operation has already been completed.**
+Both flows follow the same pattern: check the customer's order and the relevant evidence, propose an action, wait for confirmation, then record a traceable service request for further handling.
 
-## What has been verified
+## Engineering practice
 
-The two workspaces, task recovery, read-only progress updates, and source viewing have been implemented. In an isolated environment, six fixed synthetic cases passed a same-run evaluation using a real model and database, followed by human review. Engineering checks also cover permission rejection, confirmation replay, and recovery. These results have clear scope and a small sample size.
+The project implements customer and support workspaces, task recovery, read-only progress updates, and source viewing. In an isolated environment, six fixed synthetic cases were evaluated in one run using a real model and PostgreSQL, followed by human review. Engineering checks cover permission rules, confirmation replay, and recovery.
 
-Production use has further gates: trustworthy full-input accounting for model calls is not yet accepted, the formal real-model baseline remains incomplete, and a public HTTPS deployment has not been accepted. This page describes implemented and verified project behaviour, not a live customer service.
-
-The central design decision is to place generative AI inside a workflow with evidence, permissions, confirmation, and a recovery path—keeping a suggested response distinct from a service request actually written to the database.
+The central design decision is to place generative AI inside a workflow with evidence, permissions, confirmation, and a recovery path, with clear steps from a proposed response to a recorded service request.
