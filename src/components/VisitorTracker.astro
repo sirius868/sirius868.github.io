@@ -1,0 +1,27 @@
+---
+const endpoint = import.meta.env.PUBLIC_VISITOR_ENDPOINT;
+---
+
+{endpoint && <script is:inline define:vars={{ endpoint }}>
+  (() => {
+    if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true) return;
+    try {
+      const key = 'blog-visitor-id-v1';
+      let id = localStorage.getItem(key);
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem(key, id);
+      }
+      const pathname = location.pathname.replace(/^\/en(?=\/)/, '') || '/';
+      fetch(endpoint, {
+        method: 'POST',
+        mode: 'cors',
+        keepalive: true,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ visitorId: id, pathname })
+      }).catch(() => {});
+    } catch {
+      // A visitor can browse normally when storage or the collection endpoint is unavailable.
+    }
+  })();
+</script>}

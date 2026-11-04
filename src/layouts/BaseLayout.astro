@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import VisitorTracker from '../components/VisitorTracker.astro';
 import { site, siteUrl } from '../site.config';
 import { copy, localizedPath, type Locale } from '../lib/locale';
 
@@ -182,5 +183,6 @@ const nav = [
       });
       updateHeader();
     </script>
+    <VisitorTracker />
   </body>
 </html>

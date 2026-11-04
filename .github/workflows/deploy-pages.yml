@@ -28,6 +28,7 @@ jobs:
       - run: npm run build
         env:
           PUBLIC_SITE_URL: https://sirius868.github.io/
+          PUBLIC_VISITOR_ENDPOINT: ${{ vars.VISITOR_ENDPOINT }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
