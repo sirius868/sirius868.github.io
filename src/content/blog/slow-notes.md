@@ -4,7 +4,7 @@ title: 让笔记慢慢长成文章
 description: 从一个问题、一条摘录和一次回看开始，把零散想法整理成自己的文字。
 pubDate: 2026-10-20
 tags: [写作, 方法]
-featured: true
+featured: false
 draft: false
 ---
 

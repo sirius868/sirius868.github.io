@@ -4,7 +4,7 @@ title: 从一次回答到可靠执行：AI Agent 的工程结构
 description: 用一个最小执行循环，理解 Agent 如何调用工具、管理状态，以及为什么预算、权限和评测决定了它能否可靠工作。
 pubDate: 2026-10-30
 tags: [AI, Agent, 工程实践]
-featured: true
+featured: false
 draft: false
 ---
 

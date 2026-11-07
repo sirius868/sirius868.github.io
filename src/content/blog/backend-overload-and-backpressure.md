@@ -4,7 +4,7 @@ title: 后端流量突然暴涨时，为什么加机器也可能更慢
 description: 从订单接口的排队和数据库连接说起，讲清限流、并发控制、背压、超时、重试与降级如何协同工作。
 pubDate: 2026-11-04
 tags: [后端, 系统设计, 性能, 可靠性, 工程实践]
-featured: false
+featured: true
 draft: false
 ---
 

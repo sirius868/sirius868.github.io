@@ -4,7 +4,7 @@ title: BM25 为什么能找到你要的文档：从词频到排序工程
 description: 用搜索报销制度的例子讲清 BM25 的词频饱和、逆文档频率与长度归一化，以及中文分词、字段加权、混合检索和评测。
 pubDate: 2026-10-31
 tags: [搜索, BM25, RAG, 工程实践]
-featured: true
+featured: false
 draft: false
 ---
 

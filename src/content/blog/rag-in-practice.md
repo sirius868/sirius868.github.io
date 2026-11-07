@@ -4,7 +4,7 @@ title: 现在的 RAG 怎么用：从“搜几段话”到可信的知识系统
 description: 用企业知识助手的场景，讲清基础 RAG、混合检索、重排、结构化查询与 Agent 式检索的适用边界，以及如何评测和上线。
 pubDate: 2026-10-30
 tags: [AI, RAG, 检索, 工程实践]
-featured: true
+featured: false
 draft: false
 ---
 

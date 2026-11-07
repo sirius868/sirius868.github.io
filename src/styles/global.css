@@ -9,7 +9,7 @@
 .brand-logo{display:block;width:42px;height:38px;object-fit:contain;filter:grayscale(1)}
 :root[data-theme=dark] .brand-logo{filter:grayscale(1) invert(1)}
 @media(max-width:360px){.brand-logo{width:36px;height:32px}}
-.site-header{position:sticky;top:10px;z-index:50;padding:0 14px;margin:0 -14px;background:var(--bg);transition:height .25s ease,background-color .25s ease,box-shadow .25s ease,border-radius .25s ease,transform .25s ease}
+.site-header{position:sticky;top:10px;z-index:50;padding:0 14px;margin:0 -14px;background:var(--bg);transition:height .25s ease,box-shadow .25s ease,border-radius .25s ease,transform .25s ease}
 .site-header.is-scrolled{height:66px;padding:0 14px;background:color-mix(in srgb,var(--surface) 91%,transparent);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);backdrop-filter:blur(16px)}
 .site-header.is-hidden{transform:translateY(calc(-100% - 14px))}
 .site-header:focus-within,.site-header:has(.mobile-menu[open]){transform:none}

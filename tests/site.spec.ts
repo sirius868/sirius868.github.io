@@ -177,6 +177,9 @@ test('projects, bilingual search material, and browser favicon are connected', a
   await expect(page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '项目' })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('[data-deck-card][data-state="front"]')).toContainText('Blog');
   await page.getByRole('button', { name: '下一个项目' }).click();
+  await expect(page.locator('[data-deck-card][data-state="front"]')).toContainText('CaseFlow');
+  await expect(page.locator('[data-deck-card][data-state="front"]').getByRole('link', { name: '查看源码' })).toHaveCount(0);
+  await page.getByRole('button', { name: '下一个项目' }).click();
   await expect(page.locator('[data-deck-card][data-state="front"]')).toContainText('WhaleMall');
   await expect(page.locator('[data-deck-card][data-state="front"]').getByRole('link', { name: '查看源码' })).toHaveCount(0);
   await page.locator('[data-deck-card][data-state="front"]').getByRole('link', { name: '查看项目' }).click();
@@ -241,11 +244,12 @@ test('English interface keeps navigation local and labels untranslated content',
   await expect(page.getByRole('heading', { name: /Ideas, code/ })).toBeVisible();
   await page.getByRole('button', { name: 'View next section' }).dispatchEvent('click');
   await expect(page.getByRole('heading', { name: 'Featured articles' })).toBeInViewport();
+  await expect(page.locator('.home-contrast-panel').first().getByRole('link', { name: /Designing AI Systems/ })).toBeVisible();
   await expect(page.locator('html')).toHaveClass(/home-on-contrast/);
   await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Articles' })).toBeVisible();
   await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Articles' }).click();
   await expect(page).toHaveURL(/\/en\/blog\/$/);
-  await page.getByRole('link', { name: /Caffeine \+ Redis/ }).first().click();
+  await page.goto('/en/blog/backend-multi-level-cache/');
   await expect(page.getByText('This article is available in Chinese only.')).toBeVisible();
   await expect(page.locator('.article-body')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.getByRole('link', { name: 'Switch to Chinese' })).toHaveAttribute('href', '/blog/backend-multi-level-cache/');

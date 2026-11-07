@@ -4,7 +4,7 @@ title: LangGraph 深入浅出：让 Agent 能暂停、恢复和改错
 description: 从一个人工审核的小例子出发，讲清 LangGraph 的状态、节点、条件边、检查点，以及为什么恢复执行仍要考虑重复操作。
 pubDate: 2026-10-30
 tags: [AI, Agent, LangGraph, 工程实践]
-featured: true
+featured: false
 draft: false
 ---
 
