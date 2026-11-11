@@ -1,5 +1,6 @@
 import { locationInChinese } from './location.js';
 import { connectionIp } from './ip.js';
+import { beijingTime } from './time.js';
 
 const allowedOrigin = 'https://sirius868.github.io';
 const pathPattern = /^\/[a-z0-9\-_%./]*$/i;
@@ -34,13 +35,13 @@ export default {
     }
     if (!env.HASH_SECRET || !env.DB) return new Response(null, { status: 503, headers });
 
-    const day = new Date().toISOString().slice(0, 10);
+    const { day, firstSeen } = beijingTime();
     const dailyKey = `${day}:${visitorId}:${env.HASH_SECRET}`;
     const visitorHash = hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(dailyKey)));
     const location = locationInChinese(request.cf);
     const ip = connectionIp(request);
     await env.DB.batch([
-      env.DB.prepare('INSERT INTO daily_visitors (day, visitor_hash, location_zh, ip_address) VALUES (?, ?, ?, ?) ON CONFLICT(day, visitor_hash) DO UPDATE SET location_zh = COALESCE(daily_visitors.location_zh, excluded.location_zh), ip_address = COALESCE(daily_visitors.ip_address, excluded.ip_address)').bind(day, visitorHash, location, ip),
+      env.DB.prepare('INSERT INTO daily_visitors (day, visitor_hash, first_seen, location_zh, ip_address) VALUES (?, ?, ?, ?, ?) ON CONFLICT(day, visitor_hash) DO UPDATE SET location_zh = COALESCE(daily_visitors.location_zh, excluded.location_zh), ip_address = COALESCE(daily_visitors.ip_address, excluded.ip_address)').bind(day, visitorHash, firstSeen, location, ip),
       env.DB.prepare('INSERT INTO daily_pageviews (day, pathname, views) VALUES (?, ?, 1) ON CONFLICT(day, pathname) DO UPDATE SET views = views + 1').bind(day, pathname)
     ]);
     return new Response(null, { status: 204, headers });

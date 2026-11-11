@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS daily_visitors (
   day TEXT NOT NULL,
   visitor_hash TEXT NOT NULL,
-  first_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  first_seen TEXT NOT NULL,
   location_zh TEXT,
   ip_address TEXT,
   PRIMARY KEY (day, visitor_hash)
