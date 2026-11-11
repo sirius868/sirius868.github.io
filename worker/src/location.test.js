@@ -29,7 +29,7 @@ test('collector writes the coarse location and validated connection IP', async (
   const response = await worker.fetch(request, env);
   assert.equal(response.status, 204);
   assert.match(statements[0].sql, /first_seen, location_zh, ip_address/);
-  assert.match(statements[0].args[2], /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$/);
+  assert.match(statements[0].args[2], /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   assert.equal(statements[0].args[3], '中国 · 广东省 · 广州市');
   assert.equal(statements[0].args[4], '203.0.113.8');
   assert.equal(statements[0].args[0], statements[0].args[2].slice(0, 10));
